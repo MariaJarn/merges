@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MERGE & MUSE — v3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>MERGE & MUSE</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -18,8 +18,6 @@
         max-height: 950px;
         background: linear-gradient(180deg, #f5d8a8 0%, #efc98f 30%, #e2b478 70%, #d9a86a 100%);
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
         box-shadow: 0 0 60px rgba(0,0,0,0.5);
     }
 
@@ -31,41 +29,56 @@
         background: radial-gradient(circle, rgba(255,240,180,0.4), transparent 70%);
         border-radius: 50%;
         pointer-events: none;
+        z-index: 0;
+    }
+
+    .bg-stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bg-star { position: absolute; color: rgba(255, 250, 220, 0.5); font-size: 12px; animation: floatStar 8s ease-in-out infinite alternate; }
+    @keyframes floatStar {
+        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
+        100% { opacity: 0.7; transform: translateY(-20px) scale(1.2); }
+    }
+
+    /* ========== ЭКРАНЫ ========== */
+    .screen {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        z-index: 5;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.35s ease, transform 0.35s ease;
+        transform: scale(1.02);
+    }
+    .screen.active {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
     }
 
     /* ========== ВЕРХНЯЯ ПАНЕЛЬ ========== */
     .top-bar {
         display: flex;
         align-items: center;
-        padding: 8px 10px 6px;
+        padding: 10px 12px 6px;
         gap: 8px;
         position: relative;
         z-index: 10;
+        flex-shrink: 0;
     }
 
     .avatar-wrap { position: relative; flex-shrink: 0; }
     .avatar {
-        width: 46px; height: 46px;
+        width: 48px; height: 48px;
         border-radius: 50%;
         background: linear-gradient(135deg, #d4a843, #f5d68a);
         display: flex; align-items: center; justify-content: center;
-        font-size: 24px;
+        font-size: 26px;
         box-shadow: 0 3px 8px rgba(120,80,40,0.4), inset 0 -2px 4px rgba(0,0,0,0.1);
         border: 3px solid #fdf4e3;
         position: relative;
-    }
-    .avatar::after {
-        content: '';
-        position: absolute;
-        inset: -6px;
-        border-radius: 50%;
-        background: conic-gradient(from 200deg, #ffd96b, #f0b020, #ffd96b);
-        z-index: -1;
-        animation: avatarGlow 3s linear infinite;
-    }
-    @keyframes avatarGlow {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
+        z-index: 1;
     }
     .avatar-level {
         position: absolute; bottom: -4px; right: -4px;
@@ -76,16 +89,17 @@
         padding: 2px 6px; border-radius: 10px;
         border: 2px solid #fdf4e3;
         box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+        z-index: 2;
     }
 
     .currencies {
-        display: flex; gap: 5px; flex: 1; justify-content: flex-end;
+        display: flex; gap: 6px; flex: 1; justify-content: flex-end;
     }
     .currency {
         display: flex; align-items: center; gap: 4px;
         background: linear-gradient(180deg, #fff8e8, #f0e0c0);
-        padding: 4px 20px 4px 8px;
-        border-radius: 16px;
+        padding: 5px 22px 5px 10px;
+        border-radius: 18px;
         font-weight: 700; font-size: 13px; color: #5a4a3e;
         box-shadow: 0 2px 5px rgba(120,80,40,0.2), inset 0 -1px 0 rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
         min-width: 62px;
@@ -95,7 +109,7 @@
     .currency .icon { font-size: 15px; }
     .currency .plus-btn {
         position: absolute;
-        right: -4px; top: 50%;
+        right: -5px; top: 50%;
         transform: translateY(-50%);
         width: 22px; height: 22px;
         border-radius: 50%;
@@ -115,33 +129,144 @@
     .currency.energy .plus-btn { background: linear-gradient(180deg, #f5b942, #d4900a); }
     .currency .timer {
         position: absolute;
-        bottom: -13px; left: 8px;
+        bottom: -14px; left: 10px;
         font-size: 9px;
         color: #8a6a30;
         font-weight: 600;
-        background: rgba(255,255,255,0.7);
+        background: rgba(255,255,255,0.85);
         padding: 0 4px;
         border-radius: 4px;
+    }
+
+    /* ========== ЭКРАН ПЕРСОНАЖА ========== */
+    .character-stage-full {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        padding: 0 20px;
+        min-height: 0;
+    }
+    .character-portrait {
+        font-size: min(50vw, 240px);
+        line-height: 1;
+        filter: drop-shadow(0 15px 25px rgba(120,80,40,0.35));
+        animation: breatheFull 4s ease-in-out infinite;
+        position: relative;
+        z-index: 2;
+    }
+    @keyframes breatheFull {
+        0%, 100% { transform: scale(1) translateY(0); }
+        50% { transform: scale(1.02) translateY(-5px); }
+    }
+    .character-portrait::after {
+        content: '';
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 20px;
+        background: radial-gradient(ellipse, rgba(120,80,40,0.25), transparent 70%);
+        border-radius: 50%;
+    }
+
+    .character-bottom-info {
+        text-align: center;
+        margin-top: 20px;
+        position: relative;
+        z-index: 2;
+    }
+    .char-full-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #5a4a3e;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        text-shadow: 0 1px 2px rgba(255,255,255,0.5);
+    }
+    .char-full-role {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 14px;
+        color: #8a6a30;
+        font-style: italic;
+        margin-top: 2px;
+    }
+
+    /* Нижняя панель экрана персонажа */
+    .character-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px 20px;
+        gap: 10px;
+        flex-shrink: 0;
+        z-index: 10;
+    }
+    .side-actions {
+        display: flex;
+        gap: 8px;
+    }
+    .action-icon {
+        width: 56px; height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #fff8e8, #f0dfc0);
+        border: 3px solid #fdf4e3;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 26px;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(120,80,40,0.2), inset 0 -2px 0 rgba(180,140,100,0.2), inset 0 1px 0 rgba(255,255,255,0.7);
+        transition: transform 0.12s ease;
+        position: relative;
+    }
+    .action-icon:active { transform: scale(0.94); }
+
+    .action-icon.main-action {
+        width: 72px; height: 72px;
+        background: linear-gradient(180deg, #ffb8d6, #e884b0);
+        font-size: 38px;
+        box-shadow: 0 6px 14px rgba(200,80,140,0.4), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
+        animation: mainActionPulse 2s ease-in-out infinite;
+    }
+    @keyframes mainActionPulse {
+        0%, 100% { box-shadow: 0 6px 14px rgba(200,80,140,0.4), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4); }
+        50% { box-shadow: 0 6px 14px rgba(200,80,140,0.4), 0 0 0 8px rgba(232,132,176,0), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4); }
+    }
+
+    .action-icon .badge {
+        position: absolute;
+        top: -4px; right: -4px;
+        background: linear-gradient(180deg, #f44336, #c62828);
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: 8px;
+        border: 2px solid #fdf4e3;
+        font-family: 'Playfair Display', serif;
     }
 
     /* ========== ЗАКАЗЫ ========== */
     .orders-row {
         display: flex;
         gap: 6px;
-        padding: 12px 10px 8px;
+        padding: 4px 12px 8px;
         position: relative;
         z-index: 8;
+        flex-shrink: 0;
     }
-
     .order-card {
         flex: 1;
         background: linear-gradient(180deg, #fff8e8, #f0dfc0);
         border-radius: 12px;
-        padding: 5px 4px 6px;
+        padding: 6px 4px 7px;
         text-align: center;
         box-shadow: 0 3px 6px rgba(120,80,40,0.18), inset 0 -2px 0 rgba(180,140,100,0.25), inset 0 1px 0 rgba(255,255,255,0.7);
         cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.15s ease;
         position: relative;
         border: 2px solid transparent;
         min-width: 0;
@@ -155,59 +280,37 @@
         0%, 100% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 0 rgba(109,216,90,0.5); }
         50% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 7px rgba(109,216,90,0); }
     }
-
-    .order-rewards {
-        display: flex; justify-content: center; gap: 2px;
-        margin-bottom: 2px;
-        flex-wrap: wrap;
-    }
+    .order-rewards { display: flex; justify-content: center; gap: 2px; margin-bottom: 2px; flex-wrap: wrap; }
     .order-reward {
-        font-size: 9px;
-        font-weight: 700;
-        color: #8a6a30;
+        font-size: 9px; font-weight: 700; color: #8a6a30;
         background: rgba(255, 220, 130, 0.7);
-        padding: 1px 4px;
-        border-radius: 6px;
-        display: inline-flex;
-        align-items: center;
-        gap: 1px;
+        padding: 1px 4px; border-radius: 6px;
+        display: inline-flex; align-items: center; gap: 1px;
     }
     .order-icon {
-        font-size: 26px;
-        line-height: 1;
+        font-size: 26px; line-height: 1;
         filter: drop-shadow(0 2px 3px rgba(120,80,40,0.35));
         margin: 3px 0 2px;
     }
     .order-count {
         font-family: 'Playfair Display', serif;
-        font-size: 10px;
-        font-weight: 700;
-        color: #5a4a3e;
-        line-height: 1.1;
+        font-size: 10px; font-weight: 700;
+        color: #5a4a3e; line-height: 1.1;
     }
 
-    /* ========== ПРОГРЕСС-БАР ========== */
-    .progress-row {
-        padding: 0 12px 8px;
-        position: relative;
-        z-index: 8;
-    }
+    /* ========== ПРОГРЕСС ========== */
+    .progress-row { padding: 0 12px 8px; position: relative; z-index: 8; flex-shrink: 0; }
     .progress-wrap {
         background: linear-gradient(180deg, #c89468, #a87a4a);
-        border-radius: 14px;
-        padding: 3px;
-        position: relative;
+        border-radius: 14px; padding: 3px;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.25), 0 2px 5px rgba(120,80,40,0.2);
     }
     .progress-inner {
         background: linear-gradient(180deg, #f5e3c0, #e8cfa5);
         border-radius: 11px;
         padding: 5px 70px 5px 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: relative;
-        overflow: hidden;
+        display: flex; align-items: center; justify-content: space-between;
+        position: relative; overflow: hidden;
     }
     .progress-inner::before {
         content: '';
@@ -220,17 +323,13 @@
         transition: width 0.4s ease;
     }
     .progress-text {
-        position: relative;
-        z-index: 2;
+        position: relative; z-index: 2;
         font-family: 'Playfair Display', serif;
-        font-size: 12px;
-        font-weight: 700;
-        color: #2a5010;
+        font-size: 12px; font-weight: 700; color: #2a5010;
         text-shadow: 0 1px 0 rgba(255,255,255,0.4);
     }
     .progress-chest {
-        position: absolute;
-        right: 6px; top: 50%;
+        position: absolute; right: 6px; top: 50%;
         transform: translateY(-50%);
         font-size: 22px;
         filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25));
@@ -239,7 +338,7 @@
     /* ========== СЕТКА ========== */
     .grid-wrap {
         flex: 1;
-        padding: 4px 10px;
+        padding: 4px 12px;
         position: relative;
         z-index: 5;
         display: flex;
@@ -247,7 +346,6 @@
         justify-content: center;
         min-height: 0;
     }
-
     .grid {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
@@ -261,61 +359,52 @@
         border-radius: 14px;
         box-shadow: inset 0 3px 8px rgba(80,50,20,0.3), 0 2px 8px rgba(0,0,0,0.1);
     }
-
     .cell {
         background: linear-gradient(180deg, #fdf4e3, #efe2cc);
         border-radius: 9px;
         display: flex; align-items: center; justify-content: center;
         position: relative;
         box-shadow: inset 0 -2px 0 rgba(180,140,100,0.25), inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(120,80,40,0.15);
-        cursor: pointer;
-        transition: transform 0.12s ease, box-shadow 0.12s ease;
+        transition: box-shadow 0.15s ease, transform 0.15s ease;
         overflow: hidden;
-        font-size: clamp(18px, 5.5vw, 30px);
+        font-size: clamp(20px, 7vw, 34px);
         line-height: 1;
+        touch-action: none;
     }
-
     .cell.empty {
         background: rgba(255, 245, 225, 0.4);
         box-shadow: inset 0 1px 3px rgba(120,80,40,0.2);
     }
-
-    .cell.has-item:active { transform: scale(0.94); }
+    .cell.has-item { cursor: grab; }
+    .cell.has-item:active { cursor: grabbing; }
 
     .cell.selected {
         box-shadow: 0 0 0 3px #52c9dc, 0 0 14px rgba(82,201,220,0.7), inset 0 -2px 0 rgba(180,140,100,0.15);
-        transform: scale(1.06);
         background: linear-gradient(180deg, #e8f7fa, #d0edf2);
         z-index: 2;
     }
 
+    .cell.drag-over {
+        box-shadow: 0 0 0 3px #6dd85a, 0 0 14px rgba(109,216,90,0.7), inset 0 -2px 0 rgba(180,140,100,0.15);
+        background: linear-gradient(180deg, #eafae0, #d5f0c5);
+        transform: scale(1.05);
+    }
+    .cell.drag-source { opacity: 0.35; }
+
     .cell.merging { animation: mergeBounce 0.4s ease; }
     @keyframes mergeBounce {
         0% { transform: scale(1); }
-        40% { transform: scale(1.3); }
+        40% { transform: scale(1.35); }
         70% { transform: scale(0.9); }
         100% { transform: scale(1); }
     }
 
     .item-icon {
         display: block;
-        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.3));
+        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.35));
+        pointer-events: none;
+        font-size: inherit;
     }
-
-    .item-tier-badge {
-        position: absolute;
-        top: 1px; left: 1px;
-        background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
-        color: white;
-        font-family: 'Playfair Display', serif;
-        font-size: 8px;
-        font-weight: 700;
-        padding: 1px 5px;
-        border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
-        display: none;
-    }
-    .cell.has-item .item-tier-badge { display: block; }
 
     .cell.new-item .item-icon { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
     @keyframes popIn {
@@ -323,79 +412,58 @@
         100% { transform: scale(1) rotate(0); opacity: 1; }
     }
 
-    /* ========== НИЖНЯЯ ПАНЕЛЬ ========== */
+    /* Призрак перетаскивания */
+    .drag-ghost {
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        background: linear-gradient(180deg, #fff8e8, #f0dfc0);
+        border-radius: 12px;
+        box-shadow: 0 10px 25px rgba(120,80,40,0.4), inset 0 -2px 0 rgba(180,140,100,0.25);
+        font-size: clamp(24px, 8vw, 38px);
+        transform: translate(-50%, -50%) scale(1.1);
+        filter: drop-shadow(0 4px 8px rgba(120,80,40,0.3));
+        opacity: 0.95;
+    }
+
+    /* ========== НИЖНЯЯ ПАНЕЛЬ МЕРДЖА ========== */
     .bottom-bar {
-        padding: 6px 10px 12px;
+        padding: 6px 12px 10px;
         display: flex;
         align-items: stretch;
         gap: 6px;
         position: relative;
         z-index: 10;
-    }
-
-    .cabinet-btn {
         flex-shrink: 0;
-        width: 52px;
-        background: linear-gradient(180deg, #f0d5b0, #d4b088);
-        border-radius: 12px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        border: 2px solid #fdf4e3;
-        box-shadow: 0 3px 6px rgba(120,80,40,0.25), inset 0 -2px 0 rgba(120,80,40,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
-        position: relative;
-        color: #5a4a3e;
-        font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        font-size: 10px;
-        padding: 4px 2px;
-    }
-    .cabinet-btn .cab-icon {
-        font-size: 22px;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
-        margin-bottom: -1px;
-    }
-    .cabinet-btn .cab-count {
-        position: absolute;
-        top: -4px; right: -4px;
-        background: linear-gradient(180deg, #ffd96b, #f0a820);
-        color: #5a3a10;
-        font-size: 10px;
-        padding: 1px 5px;
-        border-radius: 8px;
-        border: 2px solid #fdf4e3;
-        font-weight: 700;
     }
 
     .info-card {
         flex: 1;
         background: linear-gradient(180deg, #d6eaf7, #b8d8eb);
         border-radius: 12px;
-        padding: 6px 10px;
+        padding: 6px 12px;
         box-shadow: 0 3px 6px rgba(80,120,160,0.25), inset 0 -2px 0 rgba(80,120,160,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
         min-width: 0;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
     }
     .info-header {
         display: flex; align-items: center; gap: 4px;
         font-family: 'Playfair Display', serif;
-        font-size: 11px; font-weight: 700;
+        font-size: 12px; font-weight: 700;
         color: #2b6a8a;
-        letter-spacing: 0.3px;
     }
     .info-header .info-i {
         display: inline-flex; align-items: center; justify-content: center;
-        width: 12px; height: 12px;
+        width: 13px; height: 13px;
         background: #52c9dc; color: white;
-        border-radius: 50%; font-size: 8px; font-weight: bold;
+        border-radius: 50%; font-size: 9px; font-weight: bold;
         font-family: sans-serif;
     }
     .info-text {
-        font-size: 10px;
+        font-size: 11px;
         color: #4a6a7a;
         line-height: 1.25;
         margin-top: 2px;
@@ -406,14 +474,13 @@
         gap: 4px;
         flex-shrink: 0;
     }
-
     .action-btn {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         gap: 1px;
-        padding: 4px 8px;
+        padding: 4px 10px;
         border-radius: 10px;
         border: 2px solid #fdf4e3;
         cursor: pointer;
@@ -425,46 +492,34 @@
         box-shadow: 0 3px 6px rgba(0,0,0,0.18), inset 0 -2px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .action-btn:active { transform: scale(0.94); }
-    .action-btn .btn-icon { font-size: 18px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15)); }
+    .action-btn .btn-icon { font-size: 18px; line-height: 1; }
     .action-btn .btn-amount {
         font-size: 9px;
         background: rgba(255,255,255,0.6);
         padding: 0 4px;
         border-radius: 6px;
     }
-
-    .btn-sell {
-        background: linear-gradient(180deg, #ffd96b, #f0b020);
-        color: #6a4a10;
-    }
-    .btn-sell .btn-amount { color: #6a4a10; }
+    .btn-sell { background: linear-gradient(180deg, #ffd96b, #f0b020); color: #6a4a10; }
     .btn-sell.disabled { background: linear-gradient(180deg, #cfcfcf, #a8a8a8); color: #666; opacity: 0.65; }
-    .btn-sell.disabled .btn-amount { color: #666; }
+    .btn-undo { background: linear-gradient(180deg, #6dd5e8, #3ba8bf); color: white; }
+    .btn-undo.disabled { background: linear-gradient(180deg, #b8b8b8, #909090); opacity: 0.6; }
 
-    .btn-undo {
-        background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
-        color: white;
-    }
-    .btn-undo.disabled {
-        background: linear-gradient(180deg, #b8b8b8, #909090);
-        cursor: not-allowed;
-        opacity: 0.6;
-    }
-
-    /* Кнопка «В путь» — отдельная, снизу */
+    /* ========== КНОПКА В ПУТЬ ========== */
     .generate-row {
-        padding: 0 10px 10px;
+        padding: 0 12px 12px;
         display: flex;
         justify-content: center;
+        align-items: center;
+        gap: 10px;
         position: relative;
         z-index: 10;
+        flex-shrink: 0;
     }
-
     .gen-btn {
-        background: linear-gradient(180deg, #8dd85a, #4d91a2a);
+        background: linear-gradient(180deg, #8dd85a, #4d9a2a);
         border: 3px solid #fdf4e3;
         border-radius: 40px;
-        padding: 8px 40px;
+        padding: 10px 44px;
         box-shadow: 0 5px 12px rgba(80,140,40,0.45), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
         display: flex;
         align-items: center;
@@ -474,13 +529,33 @@
         transition: transform 0.12s ease;
         color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 14px;
+        font-size: 15px;
         font-weight: 700;
         letter-spacing: 1px;
     }
     .gen-btn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(80,140,40,0.4), inset 0 -1px 0 rgba(0,0,0,0.15); }
-    .gen-btn .gen-emoji { font-size: 22px; filter;: drop-shadow(0 1px 2px rgba opacity(0,0,0,0.25:)); }
-    .gen-btn:disabled {  background: linear-gradient(180deg,0 #b8b8b8, #8a8a8a); opacity: 0.7; }
+    .gen-btn .gen-emoji { font-size: 22px; }
+    .gen-btn:disabled { background: linear-gradient(180deg, #b8b8b8, #8a8a8a); opacity: 0.7; }
+
+    /* Кнопка назад — стрелка внизу справа */
+    .back-btn {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        width: 60px; height: 60px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
+        border: 3px solid #fdf4e3;
+        color: white;
+        font-size: 30px;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 5px 12px rgba(60,140,160,0.5), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.35);
+        transition: transform 0.12s ease;
+        z-index: 20;
+        font-family: 'Playfair Display', serif;
+    }
+    .back-btn:active { transform: translateY(3px); }
 
     /* ========== ПОПАП ========== */
     .popup-overlay {
@@ -506,7 +581,6 @@
         from { transform: scale(0.7); opacity: 0; }
         to { transform: scale(1); opacity: 1; }
     }
-
     .popup-header {
         background: linear-gradient(180deg, #6dd5e8, #52c9dc);
         padding: 12px 18px;
@@ -516,8 +590,7 @@
         letter-spacing: 1px;
         display: flex; align-items: center; justify-content: space-between;
     }
-    .popup-close { cursor: pointer; font-size: 22px; line-height: .9; }
-
+    .popup-close { cursor: pointer; font-size: 22px; line-height: 1; opacity: 0.9; }
     .popup-body { padding: 20px; text-align: center; }
     .popup-item-icon {
         font-size: 64px;
@@ -555,7 +628,6 @@
         20% { transform: translateY(-10px) scale(1.1); opacity: 1; }
         100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
     }
-
     .flash {
         position: fixed; inset: 0;
         background: radial-gradient(circle at center, rgba(255,240,180,0.8), rgba(255,200,100,0.4) 40%, transparent 70%);
@@ -568,15 +640,6 @@
         20% { opacity: 1; }
         100% { opacity: 0; }
     }
-
-    /* Фоновые звёзды */
-    .bg-stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
-    .bg-star { position: absolute; color: rgba(255, 250, 220, 0.5); font-size: 12px; animation: floatStar 8s ease-in-out infinite alternate; }
-    @keyframes floatStar {
-        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
-        100% { opacity: 0.7; transform: translateY(-20px) scale(1.2); }
-    }
-
 </style>
 </head>
 <body>
@@ -584,87 +647,128 @@
 <div id="game">
     <div class="bg-stars" id="bgStars"></div>
 
-    <!-- Верхняя панель -->
-    <div class="top-bar">
-        <div class="avatar-wrap">
-            <div class="avatar">👩‍🦰</div>
-            <div class="avatar-level">48</div>
-        </div>
-        <div class="currencies">
-            <div class="currency energy">
-                <span class="icon">⚡</span><span id="energyVal">5</span>
-                <div class="plus-btn" onclick="buyEnergy()">+</div>
-                <div class="timer" id="energyTimer">00:20</div>
+    <!-- ================= ЭКРАН 1: ПЕРСОНАЖ ================= -->
+    <div class="screen screen-character active" id="screenCharacter">
+        <div class="top-bar">
+            <div class="avatar-wrap">
+                <div class="avatar">👩‍🦰</div>
+                <div class="avatar-level">48</div>
             </div>
-            <div class="currency">
-                <span class="icon">🪙</span><span id="coinVal">66</span>
-                <div class="plus-btn" onclick="buyCoins()">+</div>
-            </div>
-            <div class="currency gems">
-                <span class="icon">💎</span><span id="gemVal">26</span>
-                <div class="plus-btn" onclick="buyGems()">+</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Заказы -->
-    <div class="orders-row" id="ordersRow"></div>
-
-    <!-- Прогресс-бар -->
-    <div class="progress-row">
-        <div class="progress-wrap">
-            <div class="progress-inner" id="progressBar" style="--progress: 57%">
-                <span class="progress-text" id="progressText">570/1000</span>
-                <span class="progress-chest">🎁</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Сетка -->
-    <div class="grid-wrap">
-        <div class="grid" id="grid"></div>
-    </div>
-
-    <!-- Нижняя панель: шкаф + инфа + продажа/отмена -->
-    <div class="bottom-bar">
-        <div class="cabinet-btn" onclick="openCabinet()">
-            <span class="cab-icon">🚪</span>
-            <span>Шкаф</span>
-            <div class="cab-count" id="cabCount">4/5</div>
-        </div>
-
-        <div class="info-card">
-            <div class="info-header">
-                <span class="info-i">i</span>
-                <span id="infoName">Объедини одинаковые</span>
-            </div>
-            <div class="info-text" id="infoText">
-                Объедини одинаковые фишки, чтобы повысить уровень.
+            <div class="currencies">
+                <div class="currency energy">
+                    <span class="icon">⚡</span><span id="energyValChar">5</span>
+                    <div class="plus-btn">+</div>
+                    <div class="timer" id="energyTimerChar">00:20</div>
+                </div>
+                <div class="currency">
+                    <span class="icon">🪙</span><span id="coinValChar">66</span>
+                    <div class="plus-btn">+</div>
+                </div>
+                <div class="currency gems">
+                    <span class="icon">💎</span><span id="gemValChar">26</span>
+                    <div class="plus-btn">+</div>
+                </div>
             </div>
         </div>
 
-        <div class="action-btns">
-            <button class="action-btn btn-sell disabled" id="sellBtn">
-                <span class="btn-icon">🪙</span>
-                <span>Продать</span>
-                <span class="btn-amount" id="sellAmount">+0</span>
-            </button>
-            <button class="action-btn btn-undo disabled" id="undoBtn">
-                <span class="btn-icon">↩</span>
-                <span>Отмена</span>
+        <div class="character-stage-full">
+            <div class="character-portrait">👩‍🦰</div>
+            <div class="character-bottom-info">
+                <div class="char-full-name">Мия</div>
+                <div class="char-full-role">— модница —</div>
+            </div>
+        </div>
+
+        <div class="character-actions">
+            <div class="side-actions">
+                <button class="action-icon" onclick="showInfo('Задания', 'Скоро здесь будут задания от подруг.')">
+                    📋
+                </button>
+                <button class="action-icon" onclick="showInfo('Магазин', 'Скоро откроется.')">
+                    🛍️
+                </button>
+            </div>
+            <button class="action-icon main-action" id="goToMerge" title="Гардероб">
+                👗
+                <div class="badge" id="wardrobeBadge">!</div>
             </button>
         </div>
     </div>
 
-    <!-- Кнопка В путь -->
-    <div class="generate-row">
-        <button class="gen-btn" id="genBtn">
-            <span class="gen-emoji">🎁</span>
-            <span>В путь</span>
-        </button>
+    <!-- ================= ЭКРАН 2: МЕРДЖ ================= -->
+    <div class="screen screen-merge" id="screenMerge">
+        <div class="top-bar">
+            <div class="avatar-wrap">
+                <div class="avatar">👩‍🦰</div>
+                <div class="avatar-level">48</div>
+            </div>
+            <div class="currencies">
+                <div class="currency energy">
+                    <span class="icon">⚡</span><span id="energyVal">5</span>
+                    <div class="plus-btn" onclick="buyEnergy()">+</div>
+                    <div class="timer" id="energyTimer">00:20</div>
+                </div>
+                <div class="currency">
+                    <span class="icon">🪙</span><span id="coinVal">66</span>
+                    <div class="plus-btn" onclick="buyCoins()">+</div>
+                </div>
+                <div class="currency gems">
+                    <span class="icon">💎</span><span id="gemVal">26</span>
+                    <div class="plus-btn" onclick="buyGems()">+</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="orders-row" id="ordersRow"></div>
+
+        <div class="progress-row">
+            <div class="progress-wrap">
+                <div class="progress-inner" id="progressBar" style="--progress: 57%">
+                    <span class="progress-text" id="progressText">570/1000</span>
+                    <span class="progress-chest">🎁</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-wrap">
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="bottom-bar">
+            <div class="info-card">
+                <div class="info-header">
+                    <span class="info-i">i</span>
+                    <span id="infoName">Объедини одинаковые</span>
+                </div>
+                <div class="info-text" id="infoText">
+                    Перетаскивай фишки: одинаковые — соединяются, на пустую — переносятся.
+                </div>
+            </div>
+            <div class="action-btns">
+                <button class="action-btn btn-sell disabled" id="sellBtn">
+                    <span class="btn-icon">🪙</span>
+                    <span>Продать</span>
+                    <span class="btn-amount" id="sellAmount">+0</span>
+                </button>
+                <button class="action-btn btn-undo disabled" id="undoBtn">
+                    <span class="btn-icon">↩</span>
+                    <span>Отмена</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="generate-row">
+            <button class="gen-btn" id="genBtn">
+                <span class="gen-emoji">🎁</span>
+                <span>В путь</span>
+            </button>
+        </div>
+
+        <!-- Стрелка возврата на экран персонажа -->
+        <button class="back-btn" id="backBtn" title="К персонажу">↩</button>
     </div>
 
-    <!-- Попап -->
+    <!-- ============ ПОПАП ============ -->
     <div class="popup-overlay" id="popup">
         <div class="popup">
             <div class="popup-header">
@@ -676,8 +780,7 @@
                 <div class="popup-item-name" id="popupName">Высокие туфли</div>
                 <div class="popup-item-tier">Уровень <strong id="popupTier">5</strong></div>
                 <div class="popup-reward">
-                    <span>💎</span>
-                    <span id="popupReward">+1</span>
+                    <span>💎</span><span id="popupReward">+1</span>
                 </div>
             </div>
         </div>
@@ -686,7 +789,7 @@
 
 <script>
 // ============================================================
-// MERGE & MUSE v3 — HM-style интерфейс
+// MERGE & MUSE — v4 (drag&drop, два экрана, звук)
 // ============================================================
 
 const CHAINS = {
@@ -739,13 +842,80 @@ const state = {
     gems: 26,
     discovered: {},
     totalMerges: 0,
-    progress: 570,      // из 1000
+    progress: 570,
     progressMax: 1000,
     lastAction: null,
     selectedIdx: null,
     orders: []
 };
 
+// ---------- ЗВУК (починен — с resume) ----------
+let audioCtx = null;
+let audioUnlocked = false;
+
+function getAudioCtx() {
+    if (!audioCtx) {
+        try {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (AC) audioCtx = new AC();
+        } catch(e) { console.warn('Audio init failed', e); }
+    }
+    return audioCtx;
+}
+
+function unlockAudio() {
+    const ctx = getAudioCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+        ctx.resume().then(() => { audioUnlocked = true; }).catch(() => {});
+    } else {
+        audioUnlocked = true;
+    }
+    // Проигрываем тишину, чтобы "зацепить" звук на iOS
+    try {
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        g.gain.value = 0.0001;
+        o.connect(g); g.connect(ctx.destination);
+        o.start(0); o.stop(ctx.currentTime + 0.01);
+    } catch(e) {}
+}
+
+function playTone(f, d, t = 'sine', g = 0.1, delay = 0) {
+    try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        if (ctx.state === 'suspended') ctx.resume();
+        const o = ctx.createOscillator(), gn = ctx.createGain();
+        o.type = t; o.frequency.value = f;
+        o.connect(gn); gn.connect(ctx.destination);
+        const st = ctx.currentTime + delay;
+        gn.gain.setValueAtTime(0, st);
+        gn.gain.linearRampToValueAtTime(g, st + 0.01);
+        gn.gain.exponentialRampToValueAtTime(0.001, st + d);
+        o.start(st); o.stop(st + d);
+    } catch(e) {}
+}
+
+function playMergeSound(t) {
+    const f = 400 + t * 80;
+    playTone(f, 0.15, 'sine', 0.12, 0);
+    playTone(f * 1.5, 0.2, 'triangle', 0.08, 0.05);
+    if (t >= 4) { playTone(f * 2, 0.3, 'sine', 0.06, 0.1); playTone(f * 3, 0.4, 'sine', 0.04, 0.15); }
+}
+function playSpawnSound() { playTone(600, 0.08, 'sine', 0.06, 0); playTone(900, 0.1, 'sine', 0.04, 0.05); }
+function playTapSound() { playTone(700, 0.05, 'sine', 0.05); }
+function playSellSound() { playTone(500, 0.1, 'triangle', 0.08); playTone(350, 0.15, 'sine', 0.06, 0.05); }
+function playUndoSound() { playTone(400, 0.1, 'triangle', 0.06); playTone(300, 0.15, 'triangle', 0.06, 0.08); }
+function playOrderSound() { [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.3, 'sine', 0.09, i * 0.06)); }
+function playDiscoverySound() { [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 0.35, 'sine', 0.09, i * 0.07)); }
+
+// Разблокируем звук на первом же касании
+['pointerdown', 'touchstart', 'click', 'keydown'].forEach(ev => {
+    document.addEventListener(ev, unlockAudio, { once: true, capture: true });
+});
+
+// ---------- ИНИЦИАЛИЗАЦИЯ ----------
 function initGrid() {
     const seed = [
         { chain: 'shoes', tier: 0, count: 3 },
@@ -766,7 +936,7 @@ function initGrid() {
     });
 }
 
-// ---- Заказы ----
+// ---------- ЗАКАЗЫ ----------
 function generateOrder() {
     const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
     const maxTier = Math.min(3, CHAINS[chain].tiers.length - 1);
@@ -775,10 +945,7 @@ function generateOrder() {
     const rewardGems = tier >= 3 ? 2 : (tier >= 1 ? 1 : 0);
     return { chain, tier, rewardCoins, rewardGems };
 }
-
-function initOrders() {
-    state.orders = [generateOrder(), generateOrder(), generateOrder()];
-}
+function initOrders() { state.orders = [generateOrder(), generateOrder(), generateOrder()]; }
 
 function renderOrders() {
     const row = document.getElementById('ordersRow');
@@ -786,7 +953,6 @@ function renderOrders() {
     state.orders.forEach((order, i) => {
         const tierData = CHAINS[order.chain].tiers[order.tier];
         const has = state.grid.some(it => it && it.chain === order.chain && it.tier === order.tier);
-
         const card = document.createElement('div');
         card.className = 'order-card' + (has ? ' ready' : '');
         card.innerHTML = `
@@ -816,8 +982,8 @@ function tryCompleteOrder(idx) {
 
     const cell = gridEl.querySelector(`[data-idx="${itemIdx}"]`);
     spawnCoinFly(cell, order.rewardCoins);
-
     playOrderSound();
+
     state.orders[idx] = generateOrder();
     render();
     renderOrders();
@@ -830,7 +996,7 @@ function tryCompleteOrder(idx) {
     }
 }
 
-// ---- Сетка ----
+// ---------- ОТРИСОВКА СЕТКИ ----------
 const gridEl = document.getElementById('grid');
 
 function render() {
@@ -847,56 +1013,150 @@ function render() {
             icon.className = 'item-icon';
             icon.textContent = tierData.icon;
             cell.appendChild(icon);
-            const badge = document.createElement('span');
-            badge.className = 'item-tier-badge';
-            badge.textContent = item.tier + 1;
-            cell.appendChild(badge);
+
+            // === DRAG&DROP ===
+            cell.addEventListener('pointerdown', onPointerDown, { passive: false });
+        } else {
+            // Клик по пустой клетке = если есть выбранный предмет, перенести
+            cell.addEventListener('click', () => {
+                if (state.selectedIdx !== null && state.grid[state.selectedIdx]) {
+                    state.grid[idx] = state.grid[state.selectedIdx];
+                    state.grid[state.selectedIdx] = null;
+                    state.selectedIdx = null;
+                    clearInfo();
+                    render();
+                    updateActionButtons();
+                    playTapSound();
+                }
+            });
         }
-        cell.addEventListener('click', () => onCellTap(idx));
         gridEl.appendChild(cell);
     });
 }
 
-function onCellTap(idx) {
-    const item = state.grid[idx];
-    if (state.selectedIdx === null) {
-        if (!item) return;
-        state.selectedIdx = idx;
-        updateInfoFromItem(item);
-        render();
-        updateActionButtons();
-        playTapSound();
-        return;
-    }
-    if (state.selectedIdx === idx) {
-        state.selectedIdx = null;
-        clearInfo();
-        render();
-        updateActionButtons();
-        return;
-    }
-    if (!item) {
-        state.grid[idx] = state.grid[state.selectedIdx];
-        state.grid[state.selectedIdx] = null;
-        state.selectedIdx = null;
-        clearInfo();
-        render();
-        updateActionButtons();
-        return;
-    }
-    const first = state.grid[state.selectedIdx];
-    if (first && first.chain === item.chain && first.tier === item.tier) {
-        tryMerge(state.selectedIdx, idx);
-        state.selectedIdx = null;
-    } else {
-        state.selectedIdx = idx;
-        updateInfoFromItem(item);
-        render();
-        updateActionButtons();
-        playTapSound();
+// ---------- DRAG & DROP ----------
+let dragState = null;
+
+function onPointerDown(e) {
+    const cell = e.currentTarget;
+    const idx = parseInt(cell.dataset.idx);
+    if (!state.grid[idx]) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const rect = cell.getBoundingClientRect();
+    const ghost = document.createElement('div');
+    ghost.className = 'drag-ghost';
+    ghost.style.left = rect.left + 'px';
+    ghost.style.top = rect.top + 'px';
+    ghost.style.width = rect.width + 'px';
+    ghost.style.height = rect.height + 'px';
+    ghost.textContent = cell.querySelector('.item-icon')?.textContent || '';
+    document.body.appendChild(ghost);
+
+    dragState = {
+        fromIdx: idx,
+        ghost,
+        offsetX: e.clientX - rect.left,
+        offsetY: e.clientY - rect.top,
+        moved: false,
+        originalCell: cell,
+        pointerId: e.pointerId
+    };
+    cell.classList.add('drag-source');
+
+    document.addEventListener('pointermove', onPointerMove);
+    document.addEventListener('pointerup', onPointerUp);
+    document.addEventListener('pointercancel', onPointerUp);
+}
+
+function onPointerMove(e) {
+    if (!dragState) return;
+    e.preventDefault();
+
+    const dx = Math.abs(e.clientX - (dragState.offsetX + dragState.ghost.offsetLeft));
+    const dy = Math.abs(e.clientY - (dragState.offsetY + dragState.ghost.offsetTop));
+    if (dx > 3 || dy > 3) dragState.moved = true;
+
+    dragState.ghost.style.left = (e.clientX - dragState.offsetX) + 'px';
+    dragState.ghost.style.top = (e.clientY - dragState.offsetY) + 'px';
+
+    // Подсветка клетки под пальцем
+    dragState.ghost.style.display = 'none';
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    dragState.ghost.style.display = '';
+    const targetCell = el?.closest?.('.cell');
+
+    document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+    if (targetCell && parseInt(targetCell.dataset.idx) !== dragState.fromIdx) {
+        targetCell.classList.add('drag-over');
     }
 }
 
+function onPointerUp(e) {
+    if (!dragState) return;
+    document.removeEventListener('pointermove', onPointerMove);
+    document.removeEventListener('pointerup', onPointerUp);
+    document.removeEventListener('pointercancel', onPointerUp);
+
+    dragState.ghost.style.display = 'none';
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const targetCell = el?.closest?.('.cell');
+
+    dragState.ghost.remove();
+    dragState.originalCell.classList.remove('drag-source');
+    document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+
+    const fromIdx = dragState.fromIdx;
+    const moved = dragState.moved;
+    dragState = null;
+
+    if (!moved) {
+        // Это был тап — выбираем предмет
+        if (state.selectedIdx === fromIdx) {
+            state.selectedIdx = null;
+            clearInfo();
+        } else {
+            state.selectedIdx = fromIdx;
+            updateInfoFromItem(state.grid[fromIdx]);
+            playTapSound();
+        }
+        render();
+        updateActionButtons();
+        return;
+    }
+
+    // Было перетаскивание
+    if (!targetCell) {
+        render();
+        return;
+    }
+    const toIdx = parseInt(targetCell.dataset.idx);
+    if (toIdx === fromIdx) { render(); return; }
+
+    const from = state.grid[fromIdx];
+    const to = state.grid[toIdx];
+
+    if (!to) {
+        // Пустая — переносим
+        state.grid[toIdx] = from;
+        state.grid[fromIdx] = null;
+        state.selectedIdx = null;
+        clearInfo();
+        render();
+        updateActionButtons();
+        playTapSound();
+    } else if (from && to.chain === from.chain && to.tier === from.tier) {
+        // Мерж
+        tryMerge(fromIdx, toIdx);
+    } else {
+        // Не совпадают — ничего
+        render();
+    }
+}
+
+// ---------- MERGE ----------
 function tryMerge(fromIdx, toIdx) {
     const from = state.grid[fromIdx];
     const to = state.grid[toIdx];
@@ -941,7 +1201,7 @@ function tryMerge(fromIdx, toIdx) {
     updateActionButtons();
 }
 
-// ---- Продажа ----
+// ---------- ПРОДАЖА / ОТМЕНА ----------
 const sellBtn = document.getElementById('sellBtn');
 sellBtn.addEventListener('click', () => {
     if (state.selectedIdx === null) return;
@@ -955,10 +1215,7 @@ sellBtn.addEventListener('click', () => {
     state.selectedIdx = null;
     clearInfo();
     playSellSound();
-    updateUI();
-    render();
-    renderOrders();
-    updateActionButtons();
+    updateUI(); render(); renderOrders(); updateActionButtons();
 });
 
 function updateSellPrice() {
@@ -967,11 +1224,9 @@ function updateSellPrice() {
         el.textContent = '+0';
         return;
     }
-    const item = state.grid[state.selectedIdx];
-    el.textContent = '+' + ((item.tier + 1) * 3);
+    el.textContent = '+' + ((state.grid[state.selectedIdx].tier + 1) * 3);
 }
 
-// ---- Отмена ----
 const undoBtn = document.getElementById('undoBtn');
 undoBtn.addEventListener('click', () => {
     if (!state.lastAction) return;
@@ -982,42 +1237,27 @@ undoBtn.addEventListener('click', () => {
     state.lastAction = null;
     state.selectedIdx = null;
     playUndoSound();
-    updateUI();
-    render();
-    renderOrders();
-    clearInfo();
-    updateActionButtons();
+    updateUI(); render(); renderOrders(); clearInfo(); updateActionButtons();
 });
 
-// ---- Генератор ----
+// ---------- ГЕНЕРАТОР ----------
 const genBtn = document.getElementById('genBtn');
 genBtn.addEventListener('click', () => {
-    if (state.energy < 1) {
-        showInfo('Мало энергии', 'Подожди немного — восстановится.');
-        return;
-    }
+    if (state.energy < 1) { showInfo('Мало энергии', 'Подожди немного — восстановится.'); return; }
     const empties = state.grid.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
-    if (empties.length === 0) {
-        showInfo('Поле заполнено', 'Соедини или продай что-нибудь.');
-        return;
-    }
+    if (empties.length === 0) { showInfo('Поле заполнено', 'Соедини или продай что-нибудь.'); return; }
     const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
     const idx = empties[Math.floor(Math.random() * empties.length)];
     state.grid[idx] = { chain, tier: 0 };
     state.energy--;
     state.discovered[`${chain}-0`] = true;
-    updateUI();
-    render();
-    renderOrders();
+    updateUI(); render(); renderOrders();
     const cell = gridEl.querySelector(`[data-idx="${idx}"]`);
-    if (cell) {
-        cell.classList.add('new-item');
-        setTimeout(() => cell.classList.remove('new-item'), 500);
-    }
+    if (cell) { cell.classList.add('new-item'); setTimeout(() => cell.classList.remove('new-item'), 500); }
     playSpawnSound();
 });
 
-// Энергия + таймер
+// Энергия + таймер (общий счётчик)
 let energySeconds = 20;
 setInterval(() => {
     if (state.energy >= 100) return;
@@ -1026,57 +1266,32 @@ setInterval(() => {
         state.energy++;
         energySeconds = 20;
         updateUI();
-        playTapSound();
     }
     const m = Math.floor(energySeconds / 60);
     const s = energySeconds % 60;
-    document.getElementById('energyTimer').textContent =
-        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    const timeStr = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    const t1 = document.getElementById('energyTimer');
+    const t2 = document.getElementById('energyTimerChar');
+    if (t1) t1.textContent = timeStr;
+    if (t2) t2.textContent = timeStr;
 }, 1000);
 
-// ---- Купить валюту (заглушки) ----
 function buyEnergy() { state.gems -= 5; state.energy += 15; updateUI(); playOrderSound(); }
 function buyCoins() { state.gems -= 3; state.coins += 100; updateUI(); playOrderSound(); }
 function buyGems() { state.gems += 10; updateUI(); playOrderSound(); }
-function openCabinet() { showInfo('🚪 Шкаф', 'Здесь будет твой гардероб! Скоро.'); }
 
-// ---- Звуки ----
-let audioCtx = null;
-function getAudioCtx() {
-    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
-    return audioCtx;
-}
-function playTone(f, d, t = 'sine', g = 0.1, delay = 0) {
-    try {
-        const ctx = getAudioCtx(); if (!ctx) return;
-        const o = ctx.createOscillator(), gn = ctx.createGain();
-        o.type = t; o.frequency.value = f;
-        o.connect(gn); gn.connect(ctx.destination);
-        const st = ctx.currentTime + delay;
-        gn.gain.setValueAtTime(0, st);
-        gn.gain.linearRampToValueAtTime(g, st + 0.01);
-        gn.gain.exponentialRampToValueAtTime(0.001, st + d);
-        o.start(st); o.stop(st + d);
-    } catch(e) {}
-}
-function playMergeSound(t) {
-    const f = 400 + t * 80;
-    playTone(f, 0.15, 'sine', 0.12, 0);
-    playTone(f * 1.5, 0.2, 'triangle', 0.08, 0.05);
-    if (t >= 4) { playTone(f * 2, 0.3, 'sine', 0.06, 0.1); playTone(f * 3, 0.4, 'sine', 0.04, 0.15); }
-}
-function playSpawnSound() { playTone(600, 0.08, 'sine', 0.06, 0); playTone(900, 0.1, 'sine', 0.04, 0.05); }
-function playTapSound() { playTone(700, 0.05, 'sine', 0.04); }
-function playSellSound() { playTone(500, 0.1, 'triangle', 0.08); playTone(350, 0.15, 'sine', 0.06, 0.05); }
-function playUndoSound() { playTone(400, 0.1, 'triangle', 0.06); playTone(300, 0.15, 'triangle', 0.06, 0.08); }
-function playOrderSound() { [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.3, 'sine', 0.09, i * 0.06)); }
-function playDiscoverySound() { [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 0.35, 'sine', 0.09, i * 0.07)); }
-
-// ---- UI ----
+// ---------- UI ----------
 function updateUI() {
-    document.getElementById('coinVal').textContent = state.coins;
-    document.getElementById('energyVal').textContent = state.energy;
-    document.getElementById('gemVal').textContent = state.gems;
+    // Оба экрана
+    ['coinVal', 'coinValChar'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = state.coins;
+    });
+    ['energyVal', 'energyValChar'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = state.energy;
+    });
+    ['gemVal', 'gemValChar'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.textContent = state.gems;
+    });
     const pct = Math.round((state.progress / state.progressMax) * 100);
     document.getElementById('progressBar').style.setProperty('--progress', pct + '%');
     document.getElementById('progressText').textContent = state.progress + '/' + state.progressMax;
@@ -1097,18 +1312,18 @@ function updateInfoFromItem(item) {
     const chain = CHAINS[item.chain];
     const tierData = chain.tiers[item.tier];
     document.getElementById('infoName').textContent = tierData.name;
-    document.getElementById('infoText').textContent = `${chain.name} • Уровень ${item.tier + 1} из ${chain.tiers.length}. Тапни по такому же, чтобы соединить.`;
+    document.getElementById('infoText').textContent = `${chain.name} • Уровень ${item.tier + 1} из ${chain.tiers.length}. Перетащи на такую же, чтобы соединить.`;
 }
 function clearInfo() {
     document.getElementById('infoName').textContent = 'Объедини одинаковые';
-    document.getElementById('infoText').textContent = 'Объедини одинаковые фишки, чтобы повысить уровень.';
+    document.getElementById('infoText').textContent = 'Перетаскивай фишки: одинаковые — соединяются, на пустую — переносятся.';
 }
 function showInfo(n, t) {
     document.getElementById('infoName').textContent = n;
     document.getElementById('infoText').textContent = t;
 }
 
-// ---- Попап ----
+// ---------- ПОПАП ----------
 const popup = document.getElementById('popup');
 document.getElementById('popupClose').addEventListener('click', () => popup.classList.remove('active'));
 popup.addEventListener('click', (e) => { if (e.target === popup) popup.classList.remove('active'); });
@@ -1125,7 +1340,7 @@ function showDiscoveryPopup(chainKey, tier) {
     updateUI();
 }
 
-// ---- Эффекты ----
+// ---------- ЭФФЕКТЫ ----------
 function spawnCoinFly(cell, amount) {
     if (!cell) return;
     const r = cell.getBoundingClientRect();
@@ -1137,7 +1352,6 @@ function spawnCoinFly(cell, amount) {
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 900);
 }
-
 function triggerFlash() {
     const el = document.createElement('div');
     el.className = 'flash';
@@ -1145,6 +1359,25 @@ function triggerFlash() {
     setTimeout(() => el.remove(), 800);
 }
 
+// ---------- ПЕРЕКЛЮЧЕНИЕ ЭКРАНОВ ----------
+document.getElementById('goToMerge').addEventListener('click', () => {
+    unlockAudio();
+    playTapSound();
+    document.getElementById('screenCharacter').classList.remove('active');
+    setTimeout(() => {
+        document.getElementById('screenMerge').classList.add('active');
+    }, 120);
+});
+
+document.getElementById('backBtn').addEventListener('click', () => {
+    playTapSound();
+    document.getElementById('screenMerge').classList.remove('active');
+    setTimeout(() => {
+        document.getElementById('screenCharacter').classList.add('active');
+    }, 120);
+});
+
+// ---------- ФОН ----------
 function initBgStars() {
     const c = document.getElementById('bgStars');
     for (let i = 0; i < 22; i++) {
@@ -1160,7 +1393,7 @@ function initBgStars() {
     }
 }
 
-// ---- Старт ----
+// ---------- СТАРТ ----------
 initGrid();
 initOrders();
 initBgStars();
@@ -1168,9 +1401,6 @@ render();
 renderOrders();
 updateUI();
 updateActionButtons();
-
-document.addEventListener('touchstart', () => getAudioCtx(), { once: true });
-document.addEventListener('click', () => getAudioCtx(), { once: true });
 </script>
 </body>
 </html>
