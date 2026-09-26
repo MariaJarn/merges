@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MERGE & MUSE</title>
+<title>MERGE & MUSE — v3</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -13,10 +13,10 @@
     #game {
         position: relative;
         width: 100%;
-        max-width: 480px;
+        max-width: 500px;
         height: 100vh;
-        max-height: 900px;
-        background: linear-gradient(180deg, #f0d9b8 0%, #e8c9a0 35%, #dbb78b 100%);
+        max-height: 950px;
+        background: linear-gradient(180deg, #f5d8a8 0%, #efc98f 30%, #e2b478 70%, #d9a86a 100%);
         overflow: hidden;
         display: flex;
         flex-direction: column;
@@ -26,165 +26,214 @@
     #game::before {
         content: '';
         position: absolute;
-        top: -50px; left: -50px;
-        width: 200px; height: 200px;
-        background: radial-gradient(circle, rgba(255,220,150,0.35), transparent 70%);
+        top: -60px; left: -60px;
+        width: 240px; height: 240px;
+        background: radial-gradient(circle, rgba(255,240,180,0.4), transparent 70%);
         border-radius: 50%;
         pointer-events: none;
-    }
-    #game::after {
-        content: '';
-        position: absolute;
-        bottom: 100px; right: -80px;
-        width: 250px; height: 250px;
-        background: radial-gradient(circle, rgba(200,120,80,0.25), transparent 70%);
-        border-radius: 50%;
-        pointer-events: none;
-    }
-
-    .bg-stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
-    .bg-star { position: absolute; color: rgba(255, 220, 150, 0.35); font-size: 14px; animation: floatStar 8s ease-in-out infinite alternate; }
-    @keyframes floatStar {
-        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
-        100% { opacity: 0.6; transform: translateY(-20px) scale(1.2); }
     }
 
     /* ========== ВЕРХНЯЯ ПАНЕЛЬ ========== */
     .top-bar {
         display: flex;
         align-items: center;
-        padding: 8px 10px;
-        gap: 6px;
+        padding: 8px 10px 6px;
+        gap: 8px;
         position: relative;
         z-index: 10;
     }
 
     .avatar-wrap { position: relative; flex-shrink: 0; }
     .avatar {
-        width: 44px; height: 44px;
+        width: 46px; height: 46px;
         border-radius: 50%;
         background: linear-gradient(135deg, #d4a843, #f5d68a);
         display: flex; align-items: center; justify-content: center;
         font-size: 24px;
-        box-shadow: 0 3px 8px rgba(120,80,40,0.35), inset 0 -2px 4px rgba(0,0,0,0.1);
-        border: 2px solid #fdf4e3;
+        box-shadow: 0 3px 8px rgba(120,80,40,0.4), inset 0 -2px 4px rgba(0,0,0,0.1);
+        border: 3px solid #fdf4e3;
+        position: relative;
+    }
+    .avatar::after {
+        content: '';
+        position: absolute;
+        inset: -6px;
+        border-radius: 50%;
+        background: conic-gradient(from 200deg, #ffd96b, #f0b020, #ffd96b);
+        z-index: -1;
+        animation: avatarGlow 3s linear infinite;
+    }
+    @keyframes avatarGlow {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
     }
     .avatar-level {
-        position: absolute; bottom: -3px; right: -3px;
-        background: #5b9bd5; color: white;
+        position: absolute; bottom: -4px; right: -4px;
+        background: linear-gradient(180deg, #4aa3e0, #2b6a8a);
+        color: white;
         font-family: 'Playfair Display', serif;
         font-size: 10px; font-weight: 700;
-        padding: 1px 5px; border-radius: 10px;
+        padding: 2px 6px; border-radius: 10px;
         border: 2px solid #fdf4e3;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.25);
     }
 
     .currencies {
-        display: flex; gap: 4px; flex: 1; justify-content: flex-end;
+        display: flex; gap: 5px; flex: 1; justify-content: flex-end;
     }
     .currency {
-        display: flex; align-items: center; gap: 3px;
-        background: rgba(253, 244, 227, 0.95);
-        padding: 4px 8px 4px 5px;
+        display: flex; align-items: center; gap: 4px;
+        background: linear-gradient(180deg, #fff8e8, #f0e0c0);
+        padding: 4px 20px 4px 8px;
         border-radius: 16px;
-        font-weight: 600; font-size: 12px; color: #5a4a3e;
-        box-shadow: 0 2px 4px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
-        min-width: 54px;
+        font-weight: 700; font-size: 13px; color: #5a4a3e;
+        box-shadow: 0 2px 5px rgba(120,80,40,0.2), inset 0 -1px 0 rgba(0,0,0,0.05), inset 0 1px 0 rgba(255,255,255,0.6);
+        min-width: 62px;
+        position: relative;
+        font-family: 'Playfair Display', serif;
     }
-    .currency .icon { font-size: 14px; }
+    .currency .icon { font-size: 15px; }
+    .currency .plus-btn {
+        position: absolute;
+        right: -4px; top: 50%;
+        transform: translateY(-50%);
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #8dd85a, #6cb83a);
+        color: white;
+        border: 2px solid #fdf4e3;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 14px; font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        font-family: sans-serif;
+        line-height: 1;
+    }
     .currency.gems { color: #c2185b; }
+    .currency.gems .plus-btn { background: linear-gradient(180deg, #f47ab5, #d14179); }
     .currency.energy { color: #d4900a; }
+    .currency.energy .plus-btn { background: linear-gradient(180deg, #f5b942, #d4900a); }
+    .currency .timer {
+        position: absolute;
+        bottom: -13px; left: 8px;
+        font-size: 9px;
+        color: #8a6a30;
+        font-weight: 600;
+        background: rgba(255,255,255,0.7);
+        padding: 0 4px;
+        border-radius: 4px;
+    }
 
     /* ========== ЗАКАЗЫ ========== */
     .orders-row {
         display: flex;
         gap: 6px;
-        padding: 4px 10px 8px;
+        padding: 12px 10px 8px;
         position: relative;
         z-index: 8;
     }
 
     .order-card {
         flex: 1;
-        background: linear-gradient(180deg, #fdf4e3, #f0e0c4);
+        background: linear-gradient(180deg, #fff8e8, #f0dfc0);
         border-radius: 12px;
-        padding: 6px 6px 5px;
+        padding: 5px 4px 6px;
         text-align: center;
-        box-shadow: 0 3px 6px rgba(120,80,40,0.18), inset 0 -2px 0 rgba(180,140,100,0.2);
+        box-shadow: 0 3px 6px rgba(120,80,40,0.18), inset 0 -2px 0 rgba(180,140,100,0.25), inset 0 1px 0 rgba(255,255,255,0.7);
         cursor: pointer;
         transition: transform 0.15s ease, box-shadow 0.15s ease;
         position: relative;
         border: 2px solid transparent;
         min-width: 0;
     }
-    .order-card:active { transform: scale(0.96); }
+    .order-card:active { transform: scale(0.95); }
     .order-card.ready {
         border-color: #6dd85a;
         animation: readyPulse 1.5s ease-in-out infinite;
     }
     @keyframes readyPulse {
-        0%, 100% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 0 rgba(109,216,90,0.4); }
-        50% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 6px rgba(109,216,90,0); }
+        0%, 100% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 0 rgba(109,216,90,0.5); }
+        50% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 7px rgba(109,216,90,0); }
     }
 
+    .order-rewards {
+        display: flex; justify-content: center; gap: 2px;
+        margin-bottom: 2px;
+        flex-wrap: wrap;
+    }
     .order-reward {
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
         color: #8a6a30;
-        background: rgba(255, 220, 130, 0.6);
-        padding: 1px 5px;
-        border-radius: 8px;
-        display: inline-block;
-        margin-bottom: 2px;
+        background: rgba(255, 220, 130, 0.7);
+        padding: 1px 4px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        gap: 1px;
     }
     .order-icon {
-        font-size: 30px;
+        font-size: 26px;
         line-height: 1;
-        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.3));
-        margin: 2px 0;
+        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.35));
+        margin: 3px 0 2px;
     }
     .order-count {
         font-family: 'Playfair Display', serif;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 700;
         color: #5a4a3e;
-    }
-    .order-timer {
-        font-size: 9px;
-        color: #8a7460;
-        margin-top: 1px;
+        line-height: 1.1;
     }
 
-    /* ========== ПЕРСОНАЖ ========== */
-    .character-zone {
-        text-align: center;
-        padding: 0 12px 4px;
+    /* ========== ПРОГРЕСС-БАР ========== */
+    .progress-row {
+        padding: 0 12px 8px;
         position: relative;
-        z-index: 5;
+        z-index: 8;
     }
-    .character-stage {
-        display: inline-block;
-        background: radial-gradient(ellipse at center, rgba(255,240,210,0.6), transparent 70%);
-        padding: 2px 30px;
-        border-radius: 50%;
+    .progress-wrap {
+        background: linear-gradient(180deg, #c89468, #a87a4a);
+        border-radius: 14px;
+        padding: 3px;
+        position: relative;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.25), 0 2px 5px rgba(120,80,40,0.2);
     }
-    .character {
-        font-size: 38px;
-        filter: drop-shadow(0 4px 8px rgba(120,80,40,0.3));
-        animation: breathe 3s ease-in-out infinite;
-        display: inline-block;
+    .progress-inner {
+        background: linear-gradient(180deg, #f5e3c0, #e8cfa5);
+        border-radius: 11px;
+        padding: 5px 70px 5px 12px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
     }
-    @keyframes breathe {
-        0%, 100% { transform: scale(1) translateY(0); }
-        50% { transform: scale(1.03) translateY(-2px); }
+    .progress-inner::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 0; bottom: 0;
+        width: var(--progress, 57%);
+        background: linear-gradient(180deg, #7dd957, #4aa028);
+        border-radius: 11px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.4);
+        transition: width 0.4s ease;
     }
-    .character-name {
+    .progress-text {
+        position: relative;
+        z-index: 2;
         font-family: 'Playfair Display', serif;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
-        color: #7a5a48;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        margin-top: -2px;
+        color: #2a5010;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    }
+    .progress-chest {
+        position: absolute;
+        right: 6px; top: 50%;
+        transform: translateY(-50%);
+        font-size: 22px;
+        filter: drop-shadow(0 2px 3px rgba(0,0,0,0.25));
     }
 
     /* ========== СЕТКА ========== */
@@ -207,18 +256,18 @@
         width: 100%;
         aspect-ratio: 1;
         max-height: 100%;
-        background: rgba(190, 155, 115, 0.35);
-        padding: 6px;
+        background: rgba(180, 130, 80, 0.35);
+        padding: 7px;
         border-radius: 14px;
-        box-shadow: inset 0 2px 8px rgba(120,80,40,0.2), 0 2px 8px rgba(0,0,0,0.1);
+        box-shadow: inset 0 3px 8px rgba(80,50,20,0.3), 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .cell {
         background: linear-gradient(180deg, #fdf4e3, #efe2cc);
-        border-radius: 8px;
+        border-radius: 9px;
         display: flex; align-items: center; justify-content: center;
         position: relative;
-        box-shadow: inset 0 -2px 0 rgba(180,140,100,0.2), 0 1px 2px rgba(120,80,40,0.15);
+        box-shadow: inset 0 -2px 0 rgba(180,140,100,0.25), inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(120,80,40,0.15);
         cursor: pointer;
         transition: transform 0.12s ease, box-shadow 0.12s ease;
         overflow: hidden;
@@ -228,13 +277,13 @@
 
     .cell.empty {
         background: rgba(255, 245, 225, 0.4);
-        box-shadow: inset 0 1px 3px rgba(120,80,40,0.15);
+        box-shadow: inset 0 1px 3px rgba(120,80,40,0.2);
     }
 
     .cell.has-item:active { transform: scale(0.94); }
 
     .cell.selected {
-        box-shadow: 0 0 0 3px #52c9dc, 0 0 12px rgba(82,201,220,0.6), inset 0 -2px 0 rgba(180,140,100,0.15);
+        box-shadow: 0 0 0 3px #52c9dc, 0 0 14px rgba(82,201,220,0.7), inset 0 -2px 0 rgba(180,140,100,0.15);
         transform: scale(1.06);
         background: linear-gradient(180deg, #e8f7fa, #d0edf2);
         z-index: 2;
@@ -256,14 +305,14 @@
     .item-tier-badge {
         position: absolute;
         top: 1px; left: 1px;
-        background: #52c9dc;
+        background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
         color: white;
         font-family: 'Playfair Display', serif;
         font-size: 8px;
         font-weight: 700;
-        padding: 1px 4px;
+        padding: 1px 5px;
         border-radius: 6px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.4);
         display: none;
     }
     .cell.has-item .item-tier-badge { display: block; }
@@ -277,19 +326,55 @@
     /* ========== НИЖНЯЯ ПАНЕЛЬ ========== */
     .bottom-bar {
         padding: 6px 10px 12px;
--e        display: flex;
+        display: flex;
         align-items: stretch;
-vents        gap: 6px;
-        position: relative:;
+        gap: 6px;
+        position: relative;
         z-index: 10;
- none    }
+    }
+
+    .cabinet-btn {
+        flex-shrink: 0;
+        width: 52px;
+        background: linear-gradient(180deg, #f0d5b0, #d4b088);
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        border: 2px solid #fdf4e3;
+        box-shadow: 0 3px 6px rgba(120,80,40,0.25), inset 0 -2px 0 rgba(120,80,40,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+        position: relative;
+        color: #5a4a3e;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 10px;
+        padding: 4px 2px;
+    }
+    .cabinet-btn .cab-icon {
+        font-size: 22px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15));
+        margin-bottom: -1px;
+    }
+    .cabinet-btn .cab-count {
+        position: absolute;
+        top: -4px; right: -4px;
+        background: linear-gradient(180deg, #ffd96b, #f0a820);
+        color: #5a3a10;
+        font-size: 10px;
+        padding: 1px 5px;
+        border-radius: 8px;
+        border: 2px solid #fdf4e3;
+        font-weight: 700;
+    }
 
     .info-card {
         flex: 1;
         background: linear-gradient(180deg, #d6eaf7, #b8d8eb);
         border-radius: 12px;
         padding: 6px 10px;
-        box-shadow: 0 3px 6px rgba(80,120,160,0.2), inset 0 -2px 0 rgba(80,120,160,0.15), inset 0 1px 0 rgba(255,255,255,0.5);
+        box-shadow: 0 3px 6px rgba(80,120,160,0.25), inset 0 -2px 0 rgba(80,120,160,0.2), inset 0 1px 0 rgba(255,255,255,0.6);
         min-width: 0;
         display: flex;
         flex-direction: column;
@@ -337,13 +422,13 @@ vents        gap: 6px;
         font-weight: 700;
         font-size: 9px;
         min-width: 52px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.15), inset 0 -2px 0 rgba(0,0,0,0.1);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.18), inset 0 -2px 0 rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.3);
     }
     .action-btn:active { transform: scale(0.94); }
-    .action-btn .btn-icon { font-size: 18px; line-height: 1; }
+    .action-btn .btn-icon { font-size: 18px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.15)); }
     .action-btn .btn-amount {
         font-size: 9px;
-        background: rgba(255,255,255,0.5);
+        background: rgba(255,255,255,0.6);
         padding: 0 4px;
         border-radius: 6px;
     }
@@ -353,6 +438,8 @@ vents        gap: 6px;
         color: #6a4a10;
     }
     .btn-sell .btn-amount { color: #6a4a10; }
+    .btn-sell.disabled { background: linear-gradient(180deg, #cfcfcf, #a8a8a8); color: #666; opacity: 0.65; }
+    .btn-sell.disabled .btn-amount { color: #666; }
 
     .btn-undo {
         background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
@@ -364,40 +451,41 @@ vents        gap: 6px;
         opacity: 0.6;
     }
 
-    .gen-btn {
-        flex-shrink: 0;
-        width: 60px;
-        border-radius: 14px;
-        background: linear-gradient(180deg, #8dd85a, #6cb83a);
-        border: 3px solid #fdf4e3;
-        box-shadow: 0 4px 10px rgba(100,150,50,0.4), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
+    /* Кнопка «В путь» — отдельная, снизу */
+    .generate-row {
+        padding: 0 10px 10px;
         display: flex;
-        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        z-index: 10;
+    }
+
+    .gen-btn {
+        background: linear-gradient(180deg, #8dd85a, #4d91a2a);
+        border: 3px solid #fdf4e3;
+        border-radius: 40px;
+        padding: 8px 40px;
+        box-shadow: 0 5px 12px rgba(80,140,40,0.45), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
+        display: flex;
         align-items: center;
         justify-content: center;
+        gap: 8px;
         cursor: pointer;
         transition: transform 0.12s ease;
         color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 10px;
+        font-size: 14px;
         font-weight: 700;
-        position: relative;
+        letter-spacing: 1px;
     }
-    .gen-btn:active { transform: translateY(2px); }
-    .gen-btn .gen-emoji { font-size: 22px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
-    .gen-btn:disabled { background: linear-gradient(180deg, #b8b8b8, #909090); cursor: not-allowed; opacity: 0.7; }
-    .gen-btn .cooldown {
-        position: absolute; inset: 0;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(0,0,0,0.5);
-        border-radius: 11px;
-        font-size: 14px; font-weight: 700;
-    }
+    .gen-btn:active { transform: translateY(3px); box-shadow: 0 2px 6px rgba(80,140,40,0.4), inset 0 -1px 0 rgba(0,0,0,0.15); }
+    .gen-btn .gen-emoji { font-size: 22px; filter;: drop-shadow(0 1px 2px rgba opacity(0,0,0,0.25:)); }
+    .gen-btn:disabled {  background: linear-gradient(180deg,0 #b8b8b8, #8a8a8a); opacity: 0.7; }
 
     /* ========== ПОПАП ========== */
     .popup-overlay {
         position: fixed; inset: 0;
-        background: rgba(40, 25, 15, 0.55);
+        background: rgba(40, 25, 15, 0.6);
         display: none; align-items: center; justify-content: center;
         z-index: 1000;
         animation: fadeIn 0.25s ease;
@@ -411,7 +499,7 @@ vents        gap: 6px;
         border-radius: 22px;
         width: 100%; max-width: 320px;
         overflow: hidden;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     @keyframes popupIn {
@@ -428,7 +516,7 @@ vents        gap: 6px;
         letter-spacing: 1px;
         display: flex; align-items: center; justify-content: space-between;
     }
-    .popup-close { cursor: pointer; font-size: 22px; line-height: 1; opacity: 0.9; }
+    .popup-close { cursor: pointer; font-size: 22px; line-height: .9; }
 
     .popup-body { padding: 20px; text-align: center; }
     .popup-item-icon {
@@ -452,13 +540,13 @@ vents        gap: 6px;
         font-weight: 600; color: #8a6a30; font-size: 13px;
     }
 
-    /* ========== ВСПЛЫВАЮЩИЕ МОНЕТКИ ========== */
+    /* ========== ЭФФЕКТЫ ========== */
     .coin-fly {
-        position: fixed; pointer;
+        position: fixed; pointer-events: none;
         font-family: 'Playfair Display', serif;
         font-weight: 700; font-size: 15px;
         color: #d4900a;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 4px rgba(255,255,255,0.8);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.25), 0 0 4px rgba(255,255,255,0.9);
         z-index: 900;
         animation: coinFly 0.9s ease-out forwards;
     }
@@ -468,7 +556,6 @@ vents        gap: 6px;
         100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
     }
 
-    /* Вспышка на весь экран при открытии нового тира */
     .flash {
         position: fixed; inset: 0;
         background: radial-gradient(circle at center, rgba(255,240,180,0.8), rgba(255,200,100,0.4) 40%, transparent 70%);
@@ -482,6 +569,14 @@ vents        gap: 6px;
         100% { opacity: 0; }
     }
 
+    /* Фоновые звёзды */
+    .bg-stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bg-star { position: absolute; color: rgba(255, 250, 220, 0.5); font-size: 12px; animation: floatStar 8s ease-in-out infinite alternate; }
+    @keyframes floatStar {
+        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
+        100% { opacity: 0.7; transform: translateY(-20px) scale(1.2); }
+    }
+
 </style>
 </head>
 <body>
@@ -493,24 +588,36 @@ vents        gap: 6px;
     <div class="top-bar">
         <div class="avatar-wrap">
             <div class="avatar">👩‍🦰</div>
-            <div class="avatar-level">1</div>
+            <div class="avatar-level">48</div>
         </div>
         <div class="currencies">
-            <div class="currency energy"><span class="icon">⚡</span><span id="energyVal">50</span></div>
-            <div class="currency"><span class="icon">🪙</span><span id="coinVal">0</span></div>
-            <div class="currency gems"><span class="icon">💎</span><span id="gemVal">5</span></div>
+            <div class="currency energy">
+                <span class="icon">⚡</span><span id="energyVal">5</span>
+                <div class="plus-btn" onclick="buyEnergy()">+</div>
+                <div class="timer" id="energyTimer">00:20</div>
+            </div>
+            <div class="currency">
+                <span class="icon">🪙</span><span id="coinVal">66</span>
+                <div class="plus-btn" onclick="buyCoins()">+</div>
+            </div>
+            <div class="currency gems">
+                <span class="icon">💎</span><span id="gemVal">26</span>
+                <div class="plus-btn" onclick="buyGems()">+</div>
+            </div>
         </div>
     </div>
 
     <!-- Заказы -->
     <div class="orders-row" id="ordersRow"></div>
 
-    <!-- Персонаж -->
-    <div class="character-zone">
-        <div class="character-stage">
-            <div class="character">👩‍🦰</div>
+    <!-- Прогресс-бар -->
+    <div class="progress-row">
+        <div class="progress-wrap">
+            <div class="progress-inner" id="progressBar" style="--progress: 57%">
+                <span class="progress-text" id="progressText">570/1000</span>
+                <span class="progress-chest">🎁</span>
+            </div>
         </div>
-        <div class="character-name">Мия • Модница</div>
     </div>
 
     <!-- Сетка -->
@@ -518,15 +625,21 @@ vents        gap: 6px;
         <div class="grid" id="grid"></div>
     </div>
 
-    <!-- Нижняя панель -->
+    <!-- Нижняя панель: шкаф + инфа + продажа/отмена -->
     <div class="bottom-bar">
+        <div class="cabinet-btn" onclick="openCabinet()">
+            <span class="cab-icon">🚪</span>
+            <span>Шкаф</span>
+            <div class="cab-count" id="cabCount">4/5</div>
+        </div>
+
         <div class="info-card">
             <div class="info-header">
                 <span class="info-i">i</span>
-                <span id="infoName">Соедини одинаковые</span>
+                <span id="infoName">Объедини одинаковые</span>
             </div>
             <div class="info-text" id="infoText">
-                Тапни предмет, потом тапни по такому же — они объединятся.
+                Объедини одинаковые фишки, чтобы повысить уровень.
             </div>
         </div>
 
@@ -541,7 +654,10 @@ vents        gap: 6px;
                 <span>Отмена</span>
             </button>
         </div>
+    </div>
 
+    <!-- Кнопка В путь -->
+    <div class="generate-row">
         <button class="gen-btn" id="genBtn">
             <span class="gen-emoji">🎁</span>
             <span>В путь</span>
@@ -570,7 +686,7 @@ vents        gap: 6px;
 
 <script>
 // ============================================================
-// MERGE & MUSE — версия 2 (ЭТАП 1)
+// MERGE & MUSE v3 — HM-style интерфейс
 // ============================================================
 
 const CHAINS = {
@@ -618,19 +734,20 @@ const CHAIN_KEYS = Object.keys(CHAINS);
 
 const state = {
     grid: new Array(36).fill(null),
-    coins: 0,
-    energy: 50,
-    gems: 5,
+    coins: 66,
+    energy: 5,
+    gems: 26,
     discovered: {},
     totalMerges: 0,
-    lastAction: null,       // { type: 'merge', fromIdx, toIdx, prevFrom, prevTo, prevCoins }
+    progress: 570,      // из 1000
+    progressMax: 1000,
+    lastAction: null,
     selectedIdx: null,
     orders: []
 };
 
-// ---- Стартовая сетка ----
 function initGrid() {
-    const seedPattern = [
+    const seed = [
         { chain: 'shoes', tier: 0, count: 3 },
         { chain: 'shoes', tier: 1, count: 2 },
         { chain: 'watches', tier: 0, count: 3 },
@@ -640,28 +757,23 @@ function initGrid() {
     ];
     const positions = [...Array(36).keys()].sort(() => Math.random() - 0.5);
     let idx = 0;
-    seedPattern.forEach(seed => {
-        for (let i = 0; i < seed.count && idx < positions.length; i++) {
+    seed.forEach(s => {
+        for (let i = 0; i < s.count && idx < positions.length; i++) {
             const pos = positions[idx++];
-            state.grid[pos] = { chain: seed.chain, tier: seed.tier };
-            state.discovered[`${seed.chain}-${seed.tier}`] = true;
+            state.grid[pos] = { chain: s.chain, tier: s.tier };
+            state.discovered[`${s.chain}-${s.tier}`] = true;
         }
     });
 }
 
 // ---- Заказы ----
 function generateOrder() {
-    // Заказ: принести 1-2 предмета случайной цепочки среднего тира
     const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
-    const maxTier = Math.min(4, CHAINS[chain].tiers.length - 1);
+    const maxTier = Math.min(3, CHAINS[chain].tiers.length - 1);
     const tier = Math.floor(Math.random() * (maxTier + 1));
-    const rewardCoins = 10 + (tier + 1) * 12;
-    const rewardGems = tier >= 3 ? 1 : 0;
-    return {
-        chain, tier,
-        rewardCoins, rewardGems,
-        timeLeft: 3600 + Math.random() * 3600  // условно 1-2 часа
-    };
+    const rewardCoins = 40 + (tier + 1) * 15;
+    const rewardGems = tier >= 3 ? 2 : (tier >= 1 ? 1 : 0);
+    return { chain, tier, rewardCoins, rewardGems };
 }
 
 function initOrders() {
@@ -672,54 +784,53 @@ function renderOrders() {
     const row = document.getElementById('ordersRow');
     row.innerHTML = '';
     state.orders.forEach((order, i) => {
-        const chain = CHAINS[order.chain];
-        const tierData = chain.tiers[order.tier];
+        const tierData = CHAINS[order.chain].tiers[order.tier];
         const has = state.grid.some(it => it && it.chain === order.chain && it.tier === order.tier);
 
         const card = document.createElement('div');
         card.className = 'order-card' + (has ? ' ready' : '');
-        card.dataset.orderIdx = i;
         card.innerHTML = `
-            <div class="order-reward">+${order.rewardCoins}🪙</div>
+            <div class="order-rewards">
+                <span class="order-reward">+${order.rewardCoins}🪙</span>
+                ${order.rewardGems ? `<span class="order-reward">+${order.rewardGems}💎</span>` : ''}
+            </div>
             <div class="order-icon">${tierData.icon}</div>
             <div class="order-count">${tierData.name}</div>
-            <div class="order-timer">до конца дня</div>
         `;
         card.addEventListener('click', () => tryCompleteOrder(i));
         row.appendChild(card);
     });
 }
 
-function tryCompleteOrder(orderIdx) {
-    const order = state.orders[orderIdx];
-    // Находим подходящий предмет
+function tryCompleteOrder(idx) {
+    const order = state.orders[idx];
     const itemIdx = state.grid.findIndex(it => it && it.chain === order.chain && it.tier === order.tier);
     if (itemIdx === -1) {
         showInfo('Нужен предмет!', `Собери «${CHAINS[order.chain].tiers[order.tier].name}» и тапни по заказу снова.`);
         return;
     }
-
-    // Забираем предмет
     state.grid[itemIdx] = null;
     state.coins += order.rewardCoins;
     if (order.rewardGems) state.gems += order.rewardGems;
-    state.totalMerges++;
+    state.progress = Math.min(state.progressMax, state.progress + 5);
 
-    // Новая награда - анимация
     const cell = gridEl.querySelector(`[data-idx="${itemIdx}"]`);
     spawnCoinFly(cell, order.rewardCoins);
 
     playOrderSound();
-
-    // Новый заказ
-    state.orders[orderIdx] = generateOrder();
+    state.orders[idx] = generateOrder();
     render();
     renderOrders();
     updateUI();
     updateActionButtons();
+    if (state.progress >= state.progressMax) {
+        state.progress = 0;
+        state.gems += 10;
+        showInfo('🎁 Награда!', 'Ты собрал прогресс, получай сундук!');
+    }
 }
 
-// ---- Отрисовка сетки ----
+// ---- Сетка ----
 const gridEl = document.getElementById('grid');
 
 function render() {
@@ -731,30 +842,23 @@ function render() {
         cell.dataset.idx = idx;
 
         if (item) {
-            const chainData = CHAINS[item.chain];
-            const tierData = chainData.tiers[item.tier];
-
+            const tierData = CHAINS[item.chain].tiers[item.tier];
             const icon = document.createElement('span');
             icon.className = 'item-icon';
             icon.textContent = tierData.icon;
             cell.appendChild(icon);
-
             const badge = document.createElement('span');
             badge.className = 'item-tier-badge';
             badge.textContent = item.tier + 1;
             cell.appendChild(badge);
         }
-
         cell.addEventListener('click', () => onCellTap(idx));
         gridEl.appendChild(cell);
     });
 }
 
-// ---- Логика тап-мержа ----
 function onCellTap(idx) {
     const item = state.grid[idx];
-
-    // Если ничего не выбрано
     if (state.selectedIdx === null) {
         if (!item) return;
         state.selectedIdx = idx;
@@ -764,8 +868,6 @@ function onCellTap(idx) {
         playTapSound();
         return;
     }
-
-    // Если тапнул по тому же — отмена выбора
     if (state.selectedIdx === idx) {
         state.selectedIdx = null;
         clearInfo();
@@ -773,10 +875,7 @@ function onCellTap(idx) {
         updateActionButtons();
         return;
     }
-
-    // Если тапнул по пустой клетке — перенос
     if (!item) {
-        // Перемещаем предмет в пустую клетку
         state.grid[idx] = state.grid[state.selectedIdx];
         state.grid[state.selectedIdx] = null;
         state.selectedIdx = null;
@@ -785,15 +884,11 @@ function onCellTap(idx) {
         updateActionButtons();
         return;
     }
-
-    // Оба предмета на месте
     const first = state.grid[state.selectedIdx];
     if (first && first.chain === item.chain && first.tier === item.tier) {
-        // Мержим!
         tryMerge(state.selectedIdx, idx);
         state.selectedIdx = null;
     } else {
-        // Не совпали — просто переключаем выбор
         state.selectedIdx = idx;
         updateInfoFromItem(item);
         render();
@@ -806,44 +901,32 @@ function tryMerge(fromIdx, toIdx) {
     const from = state.grid[fromIdx];
     const to = state.grid[toIdx];
     if (!from || !to) return;
-    if (from.chain !== to.chain || from.tier !== to.tier) return;
-
     const chainData = CHAINS[from.chain];
     if (from.tier >= chainData.tiers.length - 1) {
         showInfo('Максимум!', `${chainData.tiers[from.tier].name} уже на пике.`);
         render();
         return;
     }
-
-    // Сохраняем для отмены
     state.lastAction = {
-        type: 'merge',
-        fromIdx, toIdx,
-        prevFrom: { ...from },
-        prevTo: { ...to },
-        prevCoins: state.coins
+        fromIdx, toIdx, prevFrom: { ...from }, prevTo: { ...to }, prevCoins: state.coins
     };
-
     const newTier = from.tier + 1;
     state.grid[toIdx] = { chain: from.chain, tier: newTier };
     state.grid[fromIdx] = null;
     state.totalMerges++;
-
-    const coinReward = (newTier + 1) * 3;
+    const coinReward = (newTier + 1) * 4;
     state.coins += coinReward;
+    state.progress = Math.min(state.progressMax, state.progress + 3);
     updateUI();
 
-    // Анимация
     const toCell = gridEl.querySelector(`[data-idx="${toIdx}"]`);
     if (toCell) {
         toCell.classList.add('merging');
         setTimeout(() => toCell.classList.remove('merging'), 400);
     }
-
     playMergeSound(newTier);
     spawnCoinFly(toCell, coinReward);
 
-    // Новый тир?
     const key = `${from.chain}-${newTier}`;
     if (!state.discovered[key]) {
         state.discovered[key] = true;
@@ -864,14 +947,11 @@ sellBtn.addEventListener('click', () => {
     if (state.selectedIdx === null) return;
     const item = state.grid[state.selectedIdx];
     if (!item) return;
-
-    const sellPrice = (item.tier + 1) * 2;
-    state.coins += sellPrice;
+    const price = (item.tier + 1) * 3;
+    state.coins += price;
     state.grid[state.selectedIdx] = null;
-
     const cell = gridEl.querySelector(`[data-idx="${state.selectedIdx}"]`);
-    spawnCoinFly(cell, sellPrice);
-
+    spawnCoinFly(cell, price);
     state.selectedIdx = null;
     clearInfo();
     playSellSound();
@@ -882,29 +962,25 @@ sellBtn.addEventListener('click', () => {
 });
 
 function updateSellPrice() {
-    const amountEl = document.getElementById('sellAmount');
-    if (state.selectedIdx === null) {
-        amountEl.textContent = '+0';
+    const el = document.getElementById('sellAmount');
+    if (state.selectedIdx === null || !state.grid[state.selectedIdx]) {
+        el.textContent = '+0';
         return;
     }
     const item = state.grid[state.selectedIdx];
-    if (!item) { amountEl.textContent = '+0'; return; }
-    amountEl.textContent = '+' + ((item.tier + 1) * 2);
+    el.textContent = '+' + ((item.tier + 1) * 3);
 }
 
 // ---- Отмена ----
 const undoBtn = document.getElementById('undoBtn');
 undoBtn.addEventListener('click', () => {
-    if (!state.lastAction || state.lastAction.type !== 'merge') return;
+    if (!state.lastAction) return;
     const a = state.lastAction;
-
-    // Возвращаем
     state.grid[a.fromIdx] = a.prevFrom;
     state.grid[a.toIdx] = a.prevTo;
     state.coins = a.prevCoins;
     state.lastAction = null;
     state.selectedIdx = null;
-
     playUndoSound();
     updateUI();
     render();
@@ -917,26 +993,22 @@ undoBtn.addEventListener('click', () => {
 const genBtn = document.getElementById('genBtn');
 genBtn.addEventListener('click', () => {
     if (state.energy < 1) {
-        showInfo('Мало энергии', 'Подожди, энергия восстанавливается.');
+        showInfo('Мало энергии', 'Подожди немного — восстановится.');
         return;
     }
-    const emptyIndices = state.grid.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
-    if (emptyIndices.length === 0) {
-        showInfo('Поле заполнено', 'Соедини предметы или продай лишние.');
+    const empties = state.grid.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
+    if (empties.length === 0) {
+        showInfo('Поле заполнено', 'Соедини или продай что-нибудь.');
         return;
     }
-
     const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
-    const idx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
-
+    const idx = empties[Math.floor(Math.random() * empties.length)];
     state.grid[idx] = { chain, tier: 0 };
     state.energy--;
     state.discovered[`${chain}-0`] = true;
-
     updateUI();
     render();
     renderOrders();
-
     const cell = gridEl.querySelector(`[data-idx="${idx}"]`);
     if (cell) {
         cell.classList.add('new-item');
@@ -945,97 +1017,95 @@ genBtn.addEventListener('click', () => {
     playSpawnSound();
 });
 
+// Энергия + таймер
+let energySeconds = 20;
 setInterval(() => {
-    if (state.energy < 100) {
-        state.energy = Math.min(100, state.energy + 1);
+    if (state.energy >= 100) return;
+    energySeconds--;
+    if (energySeconds <= 0) {
+        state.energy++;
+        energySeconds = 20;
         updateUI();
+        playTapSound();
     }
-}, 3000);
+    const m = Math.floor(energySeconds / 60);
+    const s = energySeconds % 60;
+    document.getElementById('energyTimer').textContent =
+        String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}, 1000);
+
+// ---- Купить валюту (заглушки) ----
+function buyEnergy() { state.gems -= 5; state.energy += 15; updateUI(); playOrderSound(); }
+function buyCoins() { state.gems -= 3; state.coins += 100; updateUI(); playOrderSound(); }
+function buyGems() { state.gems += 10; updateUI(); playOrderSound(); }
+function openCabinet() { showInfo('🚪 Шкаф', 'Здесь будет твой гардероб! Скоро.'); }
 
 // ---- Звуки ----
 let audioCtx = null;
 function getAudioCtx() {
-    if (!audioCtx) {
-        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
-    }
+    if (!audioCtx) { try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {} }
     return audioCtx;
 }
-function playTone(freq, duration, type = 'sine', gainVal = 0.1, delay = 0) {
+function playTone(f, d, t = 'sine', g = 0.1, delay = 0) {
     try {
-        const ctx = getAudioCtx();
-        if (!ctx) return;
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        osc.connect(gain); gain.connect(ctx.destination);
-        const start = ctx.currentTime + delay;
-        gain.gain.setValueAtTime(0, start);
-        gain.gain.linearRampToValueAtTime(gainVal, start + 0.01);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
-        osc.start(start);
-        osc.stop(start + duration);
+        const ctx = getAudioCtx(); if (!ctx) return;
+        const o = ctx.createOscillator(), gn = ctx.createGain();
+        o.type = t; o.frequency.value = f;
+        o.connect(gn); gn.connect(ctx.destination);
+        const st = ctx.currentTime + delay;
+        gn.gain.setValueAtTime(0, st);
+        gn.gain.linearRampToValueAtTime(g, st + 0.01);
+        gn.gain.exponentialRampToValueAtTime(0.001, st + d);
+        o.start(st); o.stop(st + d);
     } catch(e) {}
 }
-function playMergeSound(tier) {
-    const baseFreq = 400 + tier * 80;
-    playTone(baseFreq, 0.15, 'sine', 0.12, 0);
-    playTone(baseFreq * 1.5, 0.2, 'triangle', 0.08, 0.05);
-    if (tier >= 4) {
-        playTone(baseFreq * 2, 0.3, 'sine', 0.06, 0.1);
-        playTone(baseFreq * 3, 0.4, 'sine', 0.04, 0.15);
-    }
+function playMergeSound(t) {
+    const f = 400 + t * 80;
+    playTone(f, 0.15, 'sine', 0.12, 0);
+    playTone(f * 1.5, 0.2, 'triangle', 0.08, 0.05);
+    if (t >= 4) { playTone(f * 2, 0.3, 'sine', 0.06, 0.1); playTone(f * 3, 0.4, 'sine', 0.04, 0.15); }
 }
 function playSpawnSound() { playTone(600, 0.08, 'sine', 0.06, 0); playTone(900, 0.1, 'sine', 0.04, 0.05); }
 function playTapSound() { playTone(700, 0.05, 'sine', 0.04); }
 function playSellSound() { playTone(500, 0.1, 'triangle', 0.08); playTone(350, 0.15, 'sine', 0.06, 0.05); }
 function playUndoSound() { playTone(400, 0.1, 'triangle', 0.06); playTone(300, 0.15, 'triangle', 0.06, 0.08); }
-function playOrderSound() {
-    [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.3, 'sine', 0.09, i * 0.06));
-}
-function playDiscoverySound() {
-    [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 0.35, 'sine', 0.09, i * 0.07));
-}
+function playOrderSound() { [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.3, 'sine', 0.09, i * 0.06)); }
+function playDiscoverySound() { [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 0.35, 'sine', 0.09, i * 0.07)); }
 
 // ---- UI ----
 function updateUI() {
     document.getElementById('coinVal').textContent = state.coins;
     document.getElementById('energyVal').textContent = state.energy;
     document.getElementById('gemVal').textContent = state.gems;
+    const pct = Math.round((state.progress / state.progressMax) * 100);
+    document.getElementById('progressBar').style.setProperty('--progress', pct + '%');
+    document.getElementById('progressText').textContent = state.progress + '/' + state.progressMax;
 }
 
 function updateActionButtons() {
-    // Продажа
     if (state.selectedIdx !== null && state.grid[state.selectedIdx]) {
         sellBtn.classList.remove('disabled');
     } else {
         sellBtn.classList.add('disabled');
     }
     updateSellPrice();
-
-    // Отмена
-    if (state.lastAction) {
-        undoBtn.classList.remove('disabled');
-    } else {
-        undoBtn.classList.add('disabled');
-    }
+    if (state.lastAction) undoBtn.classList.remove('disabled');
+    else undoBtn.classList.add('disabled');
 }
 
 function updateInfoFromItem(item) {
     const chain = CHAINS[item.chain];
     const tierData = chain.tiers[item.tier];
     document.getElementById('infoName').textContent = tierData.name;
-    document.getElementById('infoText').textContent = `Цепочка «${chain.name}» • Уровень ${item.tier + 1} из ${chain.tiers.length}. Тапни по такому же, чтобы соединить.`;
+    document.getElementById('infoText').textContent = `${chain.name} • Уровень ${item.tier + 1} из ${chain.tiers.length}. Тапни по такому же, чтобы соединить.`;
 }
-
 function clearInfo() {
-    document.getElementById('infoName').textContent = 'Соедини одинаковые';
-    document.getElementById('infoText').textContent = 'Тапни предмет, потом тапни по такому же — они объединятся.';
+    document.getElementById('infoName').textContent = 'Объедини одинаковые';
+    document.getElementById('infoText').textContent = 'Объедини одинаковые фишки, чтобы повысить уровень.';
 }
-
-function showInfo(name, text) {
-    document.getElementById('infoName').textContent = name;
-    document.getElementById('infoText').textContent = text;
+function showInfo(n, t) {
+    document.getElementById('infoName').textContent = n;
+    document.getElementById('infoText').textContent = t;
 }
 
 // ---- Попап ----
@@ -1044,8 +1114,7 @@ document.getElementById('popupClose').addEventListener('click', () => popup.clas
 popup.addEventListener('click', (e) => { if (e.target === popup) popup.classList.remove('active'); });
 
 function showDiscoveryPopup(chainKey, tier) {
-    const chain = CHAINS[chainKey];
-    const tierData = chain.tiers[tier];
+    const tierData = CHAINS[chainKey].tiers[tier];
     document.getElementById('popupIcon').textContent = tierData.icon;
     document.getElementById('popupName').textContent = tierData.name;
     document.getElementById('popupTier').textContent = (tier + 1);
@@ -1056,15 +1125,15 @@ function showDiscoveryPopup(chainKey, tier) {
     updateUI();
 }
 
-// ---- Анимации ----
+// ---- Эффекты ----
 function spawnCoinFly(cell, amount) {
     if (!cell) return;
-    const rect = cell.getBoundingClientRect();
+    const r = cell.getBoundingClientRect();
     const el = document.createElement('div');
     el.className = 'coin-fly';
     el.textContent = '+' + amount + ' 🪙';
-    el.style.left = (rect.left + rect.width / 2 - 30) + 'px';
-    el.style.top = (rect.top) + 'px';
+    el.style.left = (r.left + r.width / 2 - 30) + 'px';
+    el.style.top = (r.top) + 'px';
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 900);
 }
@@ -1076,19 +1145,18 @@ function triggerFlash() {
     setTimeout(() => el.remove(), 800);
 }
 
-// ---- Фон ----
 function initBgStars() {
-    const container = document.getElementById('bgStars');
-    for (let i = 0; i < 20; i++) {
+    const c = document.getElementById('bgStars');
+    for (let i = 0; i < 22; i++) {
         const s = document.createElement('div');
         s.className = 'bg-star';
         s.textContent = '✦';
         s.style.left = Math.random() * 100 + '%';
         s.style.top = Math.random() * 100 + '%';
-        s.style.fontSize = (Math.random() * 14 + 10) + 'px';
+        s.style.fontSize = (Math.random() * 12 + 8) + 'px';
         s.style.animationDelay = (Math.random() * 8) + 's';
         s.style.animationDuration = (Math.random() * 6 + 6) + 's';
-        container.appendChild(s);
+        c.appendChild(s);
     }
 }
 
@@ -1101,10 +1169,8 @@ renderOrders();
 updateUI();
 updateActionButtons();
 
-// Разблокировка звука на мобильных по первому тапу
-document.addEventListener('touchstart', () => { getAudioCtx(); }, { once: true });
-document.addEventListener('click', () => { getAudioCtx(); }, { once: true });
+document.addEventListener('touchstart', () => getAudioCtx(), { once: true });
+document.addEventListener('click', () => getAudioCtx(), { once: true });
 </script>
-
 </body>
 </html>
