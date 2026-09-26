@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MERGE & MUSE — прототип</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+
+    html, body {
+        width: 100%; height: 100%;
+        overflow: hidden;
+        font-family: 'Cormorant Garamond', serif;
+        background: #1a1410;
+    }
+
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    /* ======== ИГРОВОЙ КАРКАС ======== */
+    #game {
+        position: relative;
+        width: 100%;
+        max-width: 480px;
+        height: 100vh;
+        max-height: 900px;
+        background: linear-gradient(180deg, #f0d9b8 0%, #e8c9a0 35%, #dbb78b 100%);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 0 60px rgba(0,0,0,0.5);
+    }
+
+    /* Декоративные пятна на фоне */
+    #game::before {
+        content: '';
+        position: absolute;
+        top: -50px; left: -50px;
+        width: 200px; height: 200px;
+        background: radial-gradient(circle, rgba(255,220,150,0.35), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    #game::after {
+        content: '';
+        position: absolute;
+        bottom: 100px; right: -80px;
+        width: 250px; height: 250px;
+        background: radial-gradient(circle, rgba(200,120,80,0.25), transparent 70%);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    /* ======== ВЕРХНЯЯ ПАНЕЛЬ ======== */
+    .top-bar {
+        display: flex;
+        align-items: center;
+        padding: 10px 12px;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+    }
+    .avatar {
+        width: 48px; height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #d4a843, #f5d68a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 26px;
+        box-shadow: 0 3px 8px rgba(120,80,40,0.35), inset 0 -2px 4px rgba(0,0,0,0.1);
+        border: 2px solid #fdf4e3;
+    }
+    .avatar-level {
+        position: absolute;
+        bottom: -4px; right: -4px;
+        background: #5b9bd5;
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 2px 6px;
+        border-radius: 10px;
+        border: 2px solid #fdf4e3;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .currencies {
+        display: flex;
+        gap: 6px;
+        flex: 1;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .currency {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(253, 244, 227, 0.9);
+        padding: 4px 10px 4px 6px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #5a4a3e;
+        box-shadow: 0 2px 5px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
+        min-width: 62px;
+        justify-content: flex-start;
+    }
+    .currency .icon { font-size: 16px; }
+    .currency.gems { color: #c2185b; }
+    .currency.energy { color: #d4900a; }
+
+    /* ======== ЗОНА ПЕРСОНАЖА ======== */
+    .character-zone {
+        text-align: center;
+        padding: 0 12px 8px;
+        position: relative;
+        z-index: 5;
+    }
+    .character-stage {
+        display: inline-block;
+        background: radial-gradient(ellipse at center, rgba(255,240,210,0.6), transparent 70%);
+        padding: 6px 40px;
+        border-radius: 50%;
+    }
+    .character {
+        font-size: 44px;
+        filter: drop-shadow(0 6px 10px rgba(120,80,40,0.3));
+        animation: breathe 3s ease-in-out infinite;
+        display: inline-block;
+    }
+    @keyframes breathe {
+        0%, 100% { transform: scale(1) translateY(0); }
+        50% { transform: scale(1.03) translateY(-2px); }
+    }
+    .character-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 13px;
+        font-weight: 700;
+        color: #7a5a48;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: -4px;
+    }
+
+    /* ======== СЕТКА ======== */
+    .grid-wrap {
+        flex: 1;
+        padding: 8px 12px;
+        position: relative;
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 0;
+    }
+
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        grid-template-rows: repeat(6, 1fr);
+        gap: 5px;
+        width: 100%;
+        aspect-ratio: 1;
+        max-height: 100%;
+        background: rgba(190, 155, 115, 0.35);
+        padding: 8px;
+        border-radius: 16px;
+        box-shadow: inset 0 2px 8px rgba(120,80,40,0.2), 0 2px 8px rgba(0,0,0,0.1);
+        backdrop-filter: blur(2px);
+    }
+
+    .cell {
+        background: linear-gradient(180deg, #fdf4e3, #efe2cc);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        box-shadow: inset 0 -2px 0 rgba(180,140,100,0.2), 0 1px 2px rgba(120,80,40,0.15);
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        overflow: hidden;
+        font-size: clamp(20px, 6vw, 34px);
+        line-height: 1;
+    }
+
+    .cell.empty {
+        background: rgba(255, 245, 225, 0.4);
+        box-shadow: inset 0 1px 3px rgba(120,80,40,0.15);
+        cursor: default;
+    }
+
+    .cell.has-item {
+        background: linear-gradient(180deg, #fff8ec, #f5e8d1);
+    }
+
+    .cell.has-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(120,80,40,0.25), inset 0 -2px 0 rgba(180,140,100,0.15);
+    }
+
+    .cell.drag-over {
+        box-shadow: 0 0 0 3px #52c9dc, 0 4px 10px rgba(82,201,220,0.4);
+        transform: scale(1.05);
+    }
+
+    .cell.merging {
+        animation: mergeBounce 0.4s ease;
+    }
+    @keyframes mergeBounce {
+        0% { transform: scale(1); }
+        40% { transform: scale(1.3); }
+        70% { transform: scale(0.9); }
+        100% { transform: scale(1); }
+    }
+
+    .item-icon {
+        display: block;
+        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.3));
+        transition: transform 0.2s ease;
+    }
+
+    .item-tier-badge {
+        position: absolute;
+        top: 2px; left: 2px;
+        background: #52c9dc;
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 9px;
+        font-weight: 700;
+        padding: 1px 5px;
+        border-radius: 8px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        display: none;
+    }
+    .cell.has-item .item-tier-badge {
+        display: block;
+    }
+
+    /* Появление нового предмета */
+    .cell.new-item .item-icon {
+        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popIn {
+        0% { transform: scale(0) rotate(-30deg); opacity: 0; }
+        100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    /* ======== НИЖНЯЯ ПАНЕЛЬ ======== */
+    .bottom-bar {
+        padding: 10px 12px 14px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .info-card {
+        flex: 1;
+        background: rgba(253, 244, 227, 0.9);
+        border-radius: 14px;
+        padding: 8px 14px;
+        box-shadow: 0 2px 6px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
+        min-width: 0;
+    }
+    .info-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: #52c9dc;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .info-title .info-i {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 13px; height: 13px;
+        background: #52c9dc;
+        color: white;
+        border-radius: 50%;
+        font-size: 9px;
+        font-weight: bold;
+        font-family: sans-serif;
+    }
+    .info-text {
+        font-size: 11px;
+        color: #8a7460;
+        margin-top: 2px;
+        line-height: 1.3;
+    }
+
+    .gen-btn {
+        flex-shrink: 0;
+        width: 68px;
+        height: 68px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, #8dd85a, #6cb83a);
+        border: 3px solid #fdf4e3;
+        box-shadow: 0 4px 10px rgba(100,150,50,0.4), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        position: relative;
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .gen-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px rgba(100,150,50,0.5), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
+    }
+    .gen-btn:active {
+        transform: translateY(1px);
+        box-shadow: 0 2px 5px rgba(100,150,50,0.4), inset 0 -1px 0 rgba(0,0,0,0.15);
+    }
+    .gen-btn .gen-emoji {
+        font-size: 24px;
+        line-height: 1;
+        margin-bottom: -2px;
+        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+    .gen-btn:disabled {
+        background: linear-gradient(180deg, #b8b8b8, #909090);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+    .gen-btn .cooldown {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0,0,0,0.45);
+        border-radius: 50%;
+        font-size: 15px;
+        font-weight: 700;
+    }
+
+    /* ======== ПОПАП НОВОГО ОТКРЫТИЯ ======== */
+    .popup-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(40, 25, 15, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.25s ease;
+        padding: 20px;
+    }
+    .popup-overlay.active {
+        display: flex;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .popup {
+        background: #fdf9f3;
+        border-radius: 22px;
+        width: 100%;
+        max-width: 340px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+        animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    @keyframes popupIn {
+        from { transform: scale(0.7); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    .popup-header {
+        background: linear-gradient(180deg, #6dd5e8, #52c9dc);
+        padding: 14px 20px;
+        color: white;
+        font-family: 'Playfair Display', serif;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .popup-close {
+        cursor: pointer;
+        font-size: 24px;
+        line-height: 1;
+        font-weight: 300;
+        opacity: 0.9;
+    }
+    .popup-close:hover { opacity: 1; }
+
+    .popup-body {
+        padding: 24px 20px;
+        text-align: center;
+    }
+    .popup-item-icon {
+        font-size: 68px;
+        filter: drop-shadow(0 6px 10px rgba(120,80,40,0.3));
+        margin-bottom: 10px;
+        display: inline-block;
+        animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
+    }
+    .popup-item-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        font-weight: 700;
+        color: #5a4a3e;
+        margin-bottom: 4px;
+    }
+    .popup-item-tier {
+        font-size: 14px;
+        color: #8a7460;
+        margin-bottom: 16px;
+    }
+    .popup-item-tier strong {
+        color: #b48c48;
+        font-family: 'Playfair Display', serif;
+    }
+
+    .popup-reward {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 220, 130, 0.3);
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #8a6a30;
+        font-size: 14px;
+    }
+
+    /* ======== ЗВЁЗДОЧКИ В ФОНЕ (как на сайте) ======== */
+    .bg-stars {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+        overflow: hidden;
+    }
+    .bg-star {
+        position: absolute;
+        color: rgba(255, 220, 150, 0.35);
+        font-size: 14px;
+        animation: floatStar 8s ease-in-out infinite alternate;
+    }
+    @keyframes floatStar {
+        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
+        100% { opacity: 0.6; transform: translateY(-20px) scale(1.2); }
+    }
+
+    /* ======== ВСПЛЫВАЮЩИЕ +МОНЕТЫ ======== */
+    .coin-fly {
+        position: fixed;
+        pointer-events: none;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 16px;
+        color: #d4900a;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 4px rgba(255,255,255,0.8);
+        z-index: 900;
+        animation: coinFly 0.9s ease-out forwards;
+    }
+    @keyframes coinFly {
+        0% { transform: translateY(0) scale(0.6); opacity: 0; }
+        20% { transform: translateY(-10px) scale(1.1); opacity: 1; }
+        100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
+    }
+
+    /* ======== ФИНАЛЬНЫЙ СЧЁТ ======== */
+    .stats {
+        position: absolute;
+        top: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255,255,255,0.7);
+        border-radius: 12px;
+        padding: 4px 14px;
+        font-size: 11px;
+        color: #8a7460;
+        z-index: 8;
+        display: flex;
+        gap: 12px;
+        backdrop-filter: blur(4px);
+    }
+    .stats strong {
+        color: #5a4a3e;
+        font-family: 'Playfair Display', serif;
+    }
+</style>
+</head>
+<body>
+
+<div id="game">
+    <!-- Фоновые звёздочки -->
+    <div class="bg-stars" id="bgStars"></div>
+
+    <!-- Верхняя панель -->
+    <div class="top-bar">
+        <div class="avatar-wrap">
+            <div class="avatar">👩</div>
+            <div class="avatar-level">1</div>
+        </div>
+        <div class="currencies">
+            <div class="currency energy"><span class="icon">⚡</span><span id="energyVal">50</span></div>
+            <div class="currency"><span class="icon">🪙</span><span id="coinVal">0</span></div>
+            <div class="currency gems"><span class="icon">💎</span><span id="gemVal">5</span></div>
+        </div>
+    </div>
+
+    <!-- Персонаж -->
+    <div class="character-zone">
+        <div class="character-stage">
+            <div class="character" id="characterEmoji">👩‍🦰</div>
+        </div>
+        <div class="character-name">Мия • Модница</div>
+    </div>
+
+    <!-- Игровая сетка -->
+    <div class="grid-wrap">
+        <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- Нижняя панель -->
+    <div class="bottom-bar">
+        <div class="info-card">
+            <div class="info-title">
+                <span class="info-i">i</span>
+                <span id="infoName">Соедини одинаковые</span>
+            </div>
+            <div class="info-text" id="infoText">
+                Перетащи один предмет на такой же, чтобы открыть следующий уровень.
+            </div>
+        </div>
+        <button class="gen-btn" id="genBtn">
+            <span class="gen-emoji">🎁</span>
+            <span>В путь</span>
+        </button>
+    </div>
+
+    <!-- Попап открытия -->
+    <div class="popup-overlay" id="popup">
+        <div class="popup">
+            <div class="popup-header">
+                <span>✨ Новое открытие!</span>
+                <span class="popup-close" id="popupClose">×</span>
+            </div>
+            <div class="popup-body">
+                <div class="popup-item-icon" id="popupIcon">👠</div>
+                <div class="popup-item-name" id="popupName">Высокие туфли</div>
+                <div class="popup-item-tier">Уровень <strong id="popupTier">5</strong></div>
+                <div class="popup-reward">
+                    <span>🪙</span>
+                    <span id="popupReward">+15</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// MERGE & MUSE — рабочий прототип merge-механики
+// ============================================================
+
+// ---- ЦЕПОЧКИ ПРЕДМЕТОВ ----
+const CHAINS = {
+    shoes: {
+        name: 'Обувь',
+        icon: '👟',
+        tiers: [
+            { icon: '🩴', name: 'Пляжные шлёпки' },
+            { icon: '🥿', name: 'Балетки' },
+            { icon: '👟', name: 'Кроссовки' },
+            { icon: '👞', name: 'Лоферы' },
+            { icon: '👠', name: 'Высокие туфли' },
+            { icon: '👡', name: 'Босоножки' },
+            { icon: '👢', name: 'Сапоги' },
+            { icon: '🦿', name: 'Легендарные' }
+        ]
+    },
+    watches: {
+        name: 'Часы',
+        icon: '⌚',
+        tiers: [
+            { icon: '⌚', name: 'Спортивные' },
+            { icon: '🕐', name: 'Классические' },
+            { icon: '🕑', name: 'Золотые' },
+            { icon: '🕒', name: 'Винтажные' },
+            { icon: '🕓', name: 'Ювелирные' },
+            { icon: '🕔', name: 'Коллекционные' },
+            { icon: '🕕', name: 'Раритет' },
+            { icon: '🕰️', name: 'Антиквариат' }
+        ]
+    },
+    bags: {
+        name: 'Сумки',
+        icon: '👛',
+        tiers: [
+            { icon: '👛', name: 'Монетница' },
+            { icon: '👜', name: 'Клатч' },
+            { icon: '👝', name: 'Косметичка' },
+            { icon: '🎒', name: 'Рюкзак' },
+            { icon: '💼', name: 'Деловая' },
+            { icon: '🧳', name: 'Дорожная' },
+            { icon: '👑', name: 'Кутюр' }
+        ]
+    },
+    makeup: {
+        name: 'Косметика',
+        icon: '💄',
+        tiers: [
+            { icon: '🧴', name: 'Крем' },
+            { icon: '🧼', name: 'Тоник' },
+            { icon: '💅', name: 'Лак' },
+            { icon: '💄', name: 'Помада' },
+            { icon: '💋', name: 'Палетка' },
+            { icon: '🌹', name: 'Парфюм' },
+            { icon: '💎', name: 'Люкс' }
+        ]
+    }
+};
+
+const CHAIN_KEYS = Object.keys(CHAINS);
+
+// ---- СОСТОЯНИЕ ИГРЫ ----
+const state = {
+    grid: new Array(36).fill(null),  // 6x6
+    coins: 0,
+    energy: 50,
+    gems: 5,
+    discovered: {},   // { "shoes-0": true, "shoes-1": true, ... }
+    totalMerges: 0
+};
+
+// ---- ИНИЦИАЛИЗАЦИЯ СЕТКИ ----
+function initGrid() {
+    // Ставим несколько стартовых предметов, чтобы игрок сразу мог мержить
+    const seedPattern = [
+        { chain: 'shoes', tier: 0, count: 4 },
+        { chain: 'shoes', tier: 1, count: 2 },
+        { chain: 'watches', tier: 0, count: 3 },
+        { chain: 'bags', tier: 0, count: 3 },
+        { chain: 'makeup', tier: 0, count: 3 },
+        { chain: 'makeup', tier: 1, count: 2 }
+    ];
+
+    const positions = [...Array(36).keys()].sort(() => Math.random() - 0.5);
+    let idx = 0;
+
+    seedPattern.forEach(seed => {
+        for (let i = 0; i < seed.count && idx < positions.length; i++) {
+            const pos = positions[idx++];
+            state.grid[pos] = { chain: seed.chain, tier: seed.tier };
+            // Помечаем как открытое
+            state.discovered[`${seed.chain}-${seed.tier}`] = true;
+        }
+    });
+}
+
+// ---- ОТРИСОВКА ----
+const gridEl = document.getElementById('grid');
+
+function render() {
+    gridEl.innerHTML = '';
+    state.grid.forEach((item, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell' + (item ? ' has-item' : ' empty');
+        cell.dataset.idx = idx;
+
+        if (item) {
+            const chainData = CHAINS[item.chain];
+            const tierData = chainData.tiers[item.tier];
+
+            const icon = document.createElement('span');
+            icon.className = 'item-icon';
+            icon.textContent = tierData.icon;
+            cell.appendChild(icon);
+
+            const badge = document.createElement('span');
+            badge.className = 'item-tier-badge';
+            badge.textContent = item.tier + 1;
+            cell.appendChild(badge);
+
+            // Drag & drop
+            cell.draggable = true;
+            cell.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', idx);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            cell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (state.grid[idx] === null || canMerge(state.grid[parseInt(e.dataTransfer.types[0])], state.grid[idx])) {
+                    cell.classList.add('drag-over');
+                }
+            });
+            cell.addEventListener('dragleave', () => {
+                cell.classList.remove('drag-over');
+            });
+            cell.addEventListener('drop', (e) => {
+                e.preventDefault();
+                cell.classList.remove('drag-over');
+                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
+                tryMerge(fromIdx, idx);
+            });
+
+            // Тач-поддержка
+            cell.addEventListener('touchstart', handleTouchStart, { passive: false });
+            cell.addEventListener('touchmove', handleTouchMove, { passive: false });
+            cell.addEventListener('touchend', handleTouchEnd, { passive: false });
+        }
+
+        gridEl.appendChild(cell);
+    });
+}
+
+// ---- ЛОГИКА MERGE ----
+function canMerge(a, b) {
+    if (!a || !b) return false;
+    return a.chain === b.chain && a.tier === b.tier;
+}
+
+function tryMerge(fromIdx, toIdx) {
+    if (fromIdx === toIdx) return;
+    const from = state.grid[fromIdx];
+    const to = state.grid[toIdx];
+
+    if (from && to && canMerge(from, to)) {
+        // Проверяем, не максимальный ли это тир
+        const chainData = CHAINS[from.chain];
+        if (from.tier >= chainData.tiers.length - 1) {
+            showInfo('Максимальный уровень!', `${chainData.tiers[from.tier].name} уже на пике.`);
+            return;
+        }
+
+        // Мерж!
+        const newTier = from.tier + 1;
+        state.grid[toIdx] = { chain: from.chain, tier: newTier };
+        state.grid[fromIdx] = null;
+        state.totalMerges++;
+
+        // Начисляем монеты (чем выше тир — тем больше)
+        const coinReward = (newTier + 1) * 3;
+        state.coins += coinReward;
+        updateUI();
+
+        // Анимация
+        const toCell = gridEl.querySelector(`[data-idx="${toIdx}"]`);
+        if (toCell) {
+            toCell.classList.add('merging');
+            setTimeout(() => toCell.classList.remove('merging'), 400);
+        }
+
+        // Звук мержа
+        playMergeSound(newTier);
+
+        // Всплывающие монетки
+        spawnCoinFly(toCell, coinReward);
+
+        // Проверка: новый ли это тир?
+        const key = `${from.chain}-${newTier}`;
+        if (!state.discovered[key]) {
+            state.discovered[key] = true;
+            setTimeout(() => showDiscoveryPopup(from.chain, newTier, coinReward), 350);
+        }
+
+        render();
+        updateInfo(from.chain, newTier);
+    }
+}
+
+// ---- ГЕНЕРАТОР ----
+const genBtn = document.getElementById('genBtn');
+genBtn.addEventListener('click', () => {
+    if (state.energy < 1) {
+        showInfo('Мало энергии', 'Подожди немного — энергия восстанавливается.');
+        return;
+    }
+
+    const emptyIndices = state.grid.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
+    if (emptyIndices.length === 0) {
+        showInfo('Поле заполнено', 'Соедини предметы или продай лишние, чтобы освободить место.');
+        return;
+    }
+
+    // Случайная цепочка
+    const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
+    const idx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+
+    state.grid[idx] = { chain, tier: 0 };
+    state.energy--;
+    state.discovered[`${chain}-0`] = true;
+    updateUI();
+    render();
+
+    // Анимация
+    const cell = gridEl.querySelector(`[data-idx="${idx}"]`);
+    if (cell) {
+        cell.classList.add('new-item');
+        setTimeout(() => cell.classList.remove('new-item'), 500);
+    }
+
+    playSpawnSound();
+});
+
+// Восстановление энергии
+setInterval(() => {
+    if (state.energy < 100) {
+        state.energy = Math.min(100, state.energy + 1);
+        updateUI();
+    }
+}, 3000);
+
+// ---- ЗВУКИ (Web Audio) ----
+let audioCtx = null;
+function getAudioCtx() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
+function playTone(freq, duration, type = 'sine', gainVal = 0.1, delay = 0) {
+    try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        const start = ctx.currentTime + delay;
+        gain.gain.setValueAtTime(0, start);
+        gain.gain.linearRampToValueAtTime(gainVal, start + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+        osc.start(start);
+        osc.stop(start + duration);
+    } catch(e) {}
+}
+
+function playMergeSound(tier) {
+    // Чем выше тир — тем выше и красивее звук
+    const baseFreq = 400 + tier * 80;
+    playTone(baseFreq, 0.15, 'sine', 0.12, 0);
+    playTone(baseFreq * 1.5, 0.2, 'triangle', 0.08, 0.05);
+    if (tier >= 4) {
+        // Бонусный "волшебный" звук для высоких тиров
+        playTone(baseFreq * 2, 0.3, 'sine', 0.06, 0.1);
+        playTone(baseFreq * 3, 0.4, 'sine', 0.04, 0.15);
+    }
+}
+
+function playSpawnSound() {
+    playTone(600, 0.08, 'sine', 0.06, 0);
+    playTone(900, 0.1, 'sine', 0.04, 0.05);
+}
+
+function playDiscoverySound() {
+    const notes = [523, 659, 784, 1047]; // C-E-G-C
+    notes.forEach((f, i) => playTone(f, 0.4, 'sine', 0.1, i * 0.08));
+}
+
+// ---- UI ----
+function updateUI() {
+    document.getElementById('coinVal').textContent = state.coins;
+    document.getElementById('energyVal').textContent = state.energy;
+    document.getElementById('gemVal').textContent = state.gems;
+}
+
+function updateInfo(chainKey, tier) {
+    const chain = CHAINS[chainKey];
+    const tierData = chain.tiers[tier];
+    document.getElementById('infoName').textContent = tierData.name;
+    document.getElementById('infoText').textContent = `Цепочка «${chain.name}» • Уровень ${tier + 1} из ${chain.tiers.length}`;
+}
+
+function showInfo(name, text) {
+    document.getElementById('infoName').textContent = name;
+    document.getElementById('infoText').textContent = text;
+}
+
+// ---- ПОПАП ОТКРЫТИЯ ----
+const popup = document.getElementById('popup');
+document.getElementById('popupClose').addEventListener('click', () => {
+    popup.classList.remove('active');
+});
+popup.addEventListener('click', (e) => {
+    if (e.target === popup) popup.classList.remove('active');
+});
+
+function showDiscoveryPopup(chainKey, tier, reward) {
+    const chain = CHAINS[chainKey];
+    const tierData = chain.tiers[tier];
+    document.getElementById('popupIcon').textContent = tierData.icon;
+    document.getElementById('popupName').textContent = tierData.name;
+    document.getElementById('popupTier').textContent = (tier + 1);
+    document.getElementById('popupReward').textContent = '+' + reward;
+    popup.classList.add('active');
+    playDiscoverySound();
+
+    // Бонус за открытие
+    state.gems += 1;
+    updateUI();
+}
+
+// ---- ВСПЛЫВАЮЩИЕ МОНЕТКИ ----
+function spawnCoinFly(cell, amount) {
+    if (!cell) return;
+    const rect = cell.getBoundingClientRect();
+    const el = document.createElement('div');
+    el.className = 'coin-fly';
+    el.textContent = '+' + amount + ' 🪙';
+    el.style.left = (rect.left + rect.width / 2 - 30) + 'px';
+    el.style.top = (rect.top) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 900);
+}
+
+// ---- TAP-TO-MERGE (для тач-устройств) ----
+let selectedCell = null;
+
+function handleTouchStart(e) {
+    const idx = parseInt(this.dataset.idx);
+    const item = state.grid[idx];
+    if (!item) return;
+
+    // Находим координаты касания
+    const touch = e.touches[0];
+    this.dataset.startX = touch.clientX;
+    this.dataset.startY = touch.clientY;
+    this.dataset.startIdx = idx;
+    selectedCell = idx;
+}
+
+function handleTouchMove(e) {
+    e.preventDefault(); // блокируем прокрутку
+    if (!selectedCell) return;
+
+    const touch = e.touches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!el) return;
+
+    const targetCell = el.closest('.cell');
+    if (targetCell && targetCell !== this) {
+        document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+        targetCell.classList.add('drag-over');
+    }
+}
+
+function handleTouchEnd(e) {
+    e.preventDefault();
+    document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
+
+    if (!selectedCell) return;
+
+    const touch = e.changedTouches[0];
+    const el = document.elementFromPoint(touch.clientX, touch.clientY);
+    selectedCell = null;
+
+    if (!el) return;
+    const targetCell = el.closest('.cell');
+    if (!targetCell) return;
+
+    const fromIdx = parseInt(this.dataset.startIdx);
+    const toIdx = parseInt(targetCell.dataset.idx);
+
+    if (fromIdx !== toIdx) {
+        tryMerge(fromIdx, toIdx);
+    }
+}
+
+// ---- ФОНОВЫЕ ЗВЁЗДОЧКИ ----
+function initBgStars() {
+    const container = document.getElementById('bgStars');
+    for (let i = 0; i < 20; i++) {
+        const s = document.createElement('div');
+        s.className = 'bg-star';
+        s.textContent = '✦';
+        s.style.left = Math.random() * 100 + '%';
+        s.style.top = Math.random() * 100 + '%';
+        s.style.fontSize = (Math.random() * 14 + 10) + 'px';
+        s.style.animationDelay = (Math.random() * 8) + 's';
+        s.style.animationDuration = (Math.random() * 6 + 6) + 's';
+        container.appendChild(s);
+    }
+}
+
+// ---- СТАРТ ----
+initGrid();
+initBgStars();
+render();
+updateUI();
+</script>
+
+</body>
+</html>
