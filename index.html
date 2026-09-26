@@ -3,25 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>MERGE & MUSE — прототип</title>
+<title>MERGE & MUSE</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Playfair+Display:wght@600;700;900&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+    html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Cormorant Garamond', serif; background: #1a1410; }
+    body { display: flex; justify-content: center; align-items: center; }
 
-    html, body {
-        width: 100%; height: 100%;
-        overflow: hidden;
-        font-family: 'Cormorant Garamond', serif;
-        background: #1a1410;
-    }
-
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /* ======== ИГРОВОЙ КАРКАС ======== */
     #game {
         position: relative;
         width: 100%;
@@ -35,7 +23,6 @@
         box-shadow: 0 0 60px rgba(0,0,0,0.5);
     }
 
-    /* Декоративные пятна на фоне */
     #game::before {
         content: '';
         position: absolute;
@@ -55,87 +42,134 @@
         pointer-events: none;
     }
 
-    /* ======== ВЕРХНЯЯ ПАНЕЛЬ ======== */
+    .bg-stars { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
+    .bg-star { position: absolute; color: rgba(255, 220, 150, 0.35); font-size: 14px; animation: floatStar 8s ease-in-out infinite alternate; }
+    @keyframes floatStar {
+        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
+        100% { opacity: 0.6; transform: translateY(-20px) scale(1.2); }
+    }
+
+    /* ========== ВЕРХНЯЯ ПАНЕЛЬ ========== */
     .top-bar {
         display: flex;
         align-items: center;
-        padding: 10px 12px;
-        gap: 8px;
+        padding: 8px 10px;
+        gap: 6px;
         position: relative;
         z-index: 10;
     }
 
-    .avatar-wrap {
-        position: relative;
-        flex-shrink: 0;
-    }
+    .avatar-wrap { position: relative; flex-shrink: 0; }
     .avatar {
-        width: 48px; height: 48px;
+        width: 44px; height: 44px;
         border-radius: 50%;
         background: linear-gradient(135deg, #d4a843, #f5d68a);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 26px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px;
         box-shadow: 0 3px 8px rgba(120,80,40,0.35), inset 0 -2px 4px rgba(0,0,0,0.1);
         border: 2px solid #fdf4e3;
     }
     .avatar-level {
-        position: absolute;
-        bottom: -4px; right: -4px;
-        background: #5b9bd5;
-        color: white;
+        position: absolute; bottom: -3px; right: -3px;
+        background: #5b9bd5; color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 11px;
-        font-weight: 700;
-        padding: 2px 6px;
-        border-radius: 10px;
+        font-size: 10px; font-weight: 700;
+        padding: 1px 5px; border-radius: 10px;
         border: 2px solid #fdf4e3;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
     .currencies {
-        display: flex;
-        gap: 6px;
-        flex: 1;
-        justify-content: center;
-        flex-wrap: wrap;
+        display: flex; gap: 4px; flex: 1; justify-content: flex-end;
     }
-
     .currency {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        background: rgba(253, 244, 227, 0.9);
-        padding: 4px 10px 4px 6px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-        color: #5a4a3e;
-        box-shadow: 0 2px 5px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
-        min-width: 62px;
-        justify-content: flex-start;
+        display: flex; align-items: center; gap: 3px;
+        background: rgba(253, 244, 227, 0.95);
+        padding: 4px 8px 4px 5px;
+        border-radius: 16px;
+        font-weight: 600; font-size: 12px; color: #5a4a3e;
+        box-shadow: 0 2px 4px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
+        min-width: 54px;
     }
-    .currency .icon { font-size: 16px; }
+    .currency .icon { font-size: 14px; }
     .currency.gems { color: #c2185b; }
     .currency.energy { color: #d4900a; }
 
-    /* ======== ЗОНА ПЕРСОНАЖА ======== */
+    /* ========== ЗАКАЗЫ ========== */
+    .orders-row {
+        display: flex;
+        gap: 6px;
+        padding: 4px 10px 8px;
+        position: relative;
+        z-index: 8;
+    }
+
+    .order-card {
+        flex: 1;
+        background: linear-gradient(180deg, #fdf4e3, #f0e0c4);
+        border-radius: 12px;
+        padding: 6px 6px 5px;
+        text-align: center;
+        box-shadow: 0 3px 6px rgba(120,80,40,0.18), inset 0 -2px 0 rgba(180,140,100,0.2);
+        cursor: pointer;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        position: relative;
+        border: 2px solid transparent;
+        min-width: 0;
+    }
+    .order-card:active { transform: scale(0.96); }
+    .order-card.ready {
+        border-color: #6dd85a;
+        animation: readyPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes readyPulse {
+        0%, 100% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 0 rgba(109,216,90,0.4); }
+        50% { box-shadow: 0 3px 6px rgba(120,80,40,0.18), 0 0 0 6px rgba(109,216,90,0); }
+    }
+
+    .order-reward {
+        font-size: 10px;
+        font-weight: 700;
+        color: #8a6a30;
+        background: rgba(255, 220, 130, 0.6);
+        padding: 1px 5px;
+        border-radius: 8px;
+        display: inline-block;
+        margin-bottom: 2px;
+    }
+    .order-icon {
+        font-size: 30px;
+        line-height: 1;
+        filter: drop-shadow(0 2px 3px rgba(120,80,40,0.3));
+        margin: 2px 0;
+    }
+    .order-count {
+        font-family: 'Playfair Display', serif;
+        font-size: 11px;
+        font-weight: 700;
+        color: #5a4a3e;
+    }
+    .order-timer {
+        font-size: 9px;
+        color: #8a7460;
+        margin-top: 1px;
+    }
+
+    /* ========== ПЕРСОНАЖ ========== */
     .character-zone {
         text-align: center;
-        padding: 0 12px 8px;
+        padding: 0 12px 4px;
         position: relative;
         z-index: 5;
     }
     .character-stage {
         display: inline-block;
         background: radial-gradient(ellipse at center, rgba(255,240,210,0.6), transparent 70%);
-        padding: 6px 40px;
+        padding: 2px 30px;
         border-radius: 50%;
     }
     .character {
-        font-size: 44px;
-        filter: drop-shadow(0 6px 10px rgba(120,80,40,0.3));
+        font-size: 38px;
+        filter: drop-shadow(0 4px 8px rgba(120,80,40,0.3));
         animation: breathe 3s ease-in-out infinite;
         display: inline-block;
     }
@@ -145,18 +179,18 @@
     }
     .character-name {
         font-family: 'Playfair Display', serif;
-        font-size: 13px;
+        font-size: 11px;
         font-weight: 700;
         color: #7a5a48;
         letter-spacing: 2px;
         text-transform: uppercase;
-        margin-top: -4px;
+        margin-top: -2px;
     }
 
-    /* ======== СЕТКА ======== */
+    /* ========== СЕТКА ========== */
     .grid-wrap {
         flex: 1;
-        padding: 8px 12px;
+        padding: 4px 10px;
         position: relative;
         z-index: 5;
         display: flex;
@@ -169,55 +203,44 @@
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         grid-template-rows: repeat(6, 1fr);
-        gap: 5px;
+        gap: 4px;
         width: 100%;
         aspect-ratio: 1;
         max-height: 100%;
         background: rgba(190, 155, 115, 0.35);
-        padding: 8px;
-        border-radius: 16px;
+        padding: 6px;
+        border-radius: 14px;
         box-shadow: inset 0 2px 8px rgba(120,80,40,0.2), 0 2px 8px rgba(0,0,0,0.1);
-        backdrop-filter: blur(2px);
     }
 
     .cell {
         background: linear-gradient(180deg, #fdf4e3, #efe2cc);
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
         position: relative;
         box-shadow: inset 0 -2px 0 rgba(180,140,100,0.2), 0 1px 2px rgba(120,80,40,0.15);
         cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
+        transition: transform 0.12s ease, box-shadow 0.12s ease;
         overflow: hidden;
-        font-size: clamp(20px, 6vw, 34px);
+        font-size: clamp(18px, 5.5vw, 30px);
         line-height: 1;
     }
 
     .cell.empty {
         background: rgba(255, 245, 225, 0.4);
         box-shadow: inset 0 1px 3px rgba(120,80,40,0.15);
-        cursor: default;
     }
 
-    .cell.has-item {
-        background: linear-gradient(180deg, #fff8ec, #f5e8d1);
+    .cell.has-item:active { transform: scale(0.94); }
+
+    .cell.selected {
+        box-shadow: 0 0 0 3px #52c9dc, 0 0 12px rgba(82,201,220,0.6), inset 0 -2px 0 rgba(180,140,100,0.15);
+        transform: scale(1.06);
+        background: linear-gradient(180deg, #e8f7fa, #d0edf2);
+        z-index: 2;
     }
 
-    .cell.has-item:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(120,80,40,0.25), inset 0 -2px 0 rgba(180,140,100,0.15);
-    }
-
-    .cell.drag-over {
-        box-shadow: 0 0 0 3px #52c9dc, 0 4px 10px rgba(82,201,220,0.4);
-        transform: scale(1.05);
-    }
-
-    .cell.merging {
-        animation: mergeBounce 0.4s ease;
-    }
+    .cell.merging { animation: mergeBounce 0.4s ease; }
     @keyframes mergeBounce {
         0% { transform: scale(1); }
         40% { transform: scale(1.3); }
@@ -228,87 +251,123 @@
     .item-icon {
         display: block;
         filter: drop-shadow(0 2px 3px rgba(120,80,40,0.3));
-        transition: transform 0.2s ease;
     }
 
     .item-tier-badge {
         position: absolute;
-        top: 2px; left: 2px;
+        top: 1px; left: 1px;
         background: #52c9dc;
         color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 9px;
+        font-size: 8px;
         font-weight: 700;
-        padding: 1px 5px;
-        border-radius: 8px;
+        padding: 1px 4px;
+        border-radius: 6px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         display: none;
     }
-    .cell.has-item .item-tier-badge {
-        display: block;
-    }
+    .cell.has-item .item-tier-badge { display: block; }
 
-    /* Появление нового предмета */
-    .cell.new-item .item-icon {
-        animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+    .cell.new-item .item-icon { animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
     @keyframes popIn {
         0% { transform: scale(0) rotate(-30deg); opacity: 0; }
         100% { transform: scale(1) rotate(0); opacity: 1; }
     }
 
-    /* ======== НИЖНЯЯ ПАНЕЛЬ ======== */
+    /* ========== НИЖНЯЯ ПАНЕЛЬ ========== */
     .bottom-bar {
-        padding: 10px 12px 14px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
+        padding: 6px 10px 12px;
+-e        display: flex;
+        align-items: stretch;
+vents        gap: 6px;
+        position: relative:;
         z-index: 10;
-    }
+ none    }
 
     .info-card {
         flex: 1;
-        background: rgba(253, 244, 227, 0.9);
-        border-radius: 14px;
-        padding: 8px 14px;
-        box-shadow: 0 2px 6px rgba(120,80,40,0.15), inset 0 -1px 0 rgba(0,0,0,0.05);
+        background: linear-gradient(180deg, #d6eaf7, #b8d8eb);
+        border-radius: 12px;
+        padding: 6px 10px;
+        box-shadow: 0 3px 6px rgba(80,120,160,0.2), inset 0 -2px 0 rgba(80,120,160,0.15), inset 0 1px 0 rgba(255,255,255,0.5);
         min-width: 0;
-    }
-    .info-title {
-        font-family: 'Playfair Display', serif;
-        font-size: 12px;
-        font-weight: 700;
-        color: #52c9dc;
-        letter-spacing: 0.5px;
         display: flex;
-        align-items: center;
-        gap: 4px;
+        flex-direction: column;
+        justify-content: space-between;
     }
-    .info-title .info-i {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 13px; height: 13px;
-        background: #52c9dc;
-        color: white;
-        border-radius: 50%;
-        font-size: 9px;
-        font-weight: bold;
+    .info-header {
+        display: flex; align-items: center; gap: 4px;
+        font-family: 'Playfair Display', serif;
+        font-size: 11px; font-weight: 700;
+        color: #2b6a8a;
+        letter-spacing: 0.3px;
+    }
+    .info-header .info-i {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 12px; height: 12px;
+        background: #52c9dc; color: white;
+        border-radius: 50%; font-size: 8px; font-weight: bold;
         font-family: sans-serif;
     }
     .info-text {
-        font-size: 11px;
-        color: #8a7460;
+        font-size: 10px;
+        color: #4a6a7a;
+        line-height: 1.25;
         margin-top: 2px;
-        line-height: 1.3;
+    }
+
+    .action-btns {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        padding: 4px 8px;
+        border-radius: 10px;
+        border: 2px solid #fdf4e3;
+        cursor: pointer;
+        transition: transform 0.12s ease;
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        font-size: 9px;
+        min-width: 52px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15), inset 0 -2px 0 rgba(0,0,0,0.1);
+    }
+    .action-btn:active { transform: scale(0.94); }
+    .action-btn .btn-icon { font-size: 18px; line-height: 1; }
+    .action-btn .btn-amount {
+        font-size: 9px;
+        background: rgba(255,255,255,0.5);
+        padding: 0 4px;
+        border-radius: 6px;
+    }
+
+    .btn-sell {
+        background: linear-gradient(180deg, #ffd96b, #f0b020);
+        color: #6a4a10;
+    }
+    .btn-sell .btn-amount { color: #6a4a10; }
+
+    .btn-undo {
+        background: linear-gradient(180deg, #6dd5e8, #3ba8bf);
+        color: white;
+    }
+    .btn-undo.disabled {
+        background: linear-gradient(180deg, #b8b8b8, #909090);
+        cursor: not-allowed;
+        opacity: 0.6;
     }
 
     .gen-btn {
         flex-shrink: 0;
-        width: 68px;
-        height: 68px;
-        border-radius: 50%;
+        width: 60px;
+        border-radius: 14px;
         background: linear-gradient(180deg, #8dd85a, #6cb83a);
         border: 3px solid #fdf4e3;
         box-shadow: 0 4px 10px rgba(100,150,50,0.4), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
@@ -317,70 +376,40 @@
         align-items: center;
         justify-content: center;
         cursor: pointer;
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-        position: relative;
+        transition: transform 0.12s ease;
         color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 700;
-        letter-spacing: 0.5px;
+        position: relative;
     }
-    .gen-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 14px rgba(100,150,50,0.5), inset 0 -3px 0 rgba(0,0,0,0.15), inset 0 2px 0 rgba(255,255,255,0.4);
-    }
-    .gen-btn:active {
-        transform: translateY(1px);
-        box-shadow: 0 2px 5px rgba(100,150,50,0.4), inset 0 -1px 0 rgba(0,0,0,0.15);
-    }
-    .gen-btn .gen-emoji {
-        font-size: 24px;
-        line-height: 1;
-        margin-bottom: -2px;
-        filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
-    }
-    .gen-btn:disabled {
-        background: linear-gradient(180deg, #b8b8b8, #909090);
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
+    .gen-btn:active { transform: translateY(2px); }
+    .gen-btn .gen-emoji { font-size: 22px; line-height: 1; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2)); }
+    .gen-btn:disabled { background: linear-gradient(180deg, #b8b8b8, #909090); cursor: not-allowed; opacity: 0.7; }
     .gen-btn .cooldown {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0,0,0,0.45);
-        border-radius: 50%;
-        font-size: 15px;
-        font-weight: 700;
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(0,0,0,0.5);
+        border-radius: 11px;
+        font-size: 14px; font-weight: 700;
     }
 
-    /* ======== ПОПАП НОВОГО ОТКРЫТИЯ ======== */
+    /* ========== ПОПАП ========== */
     .popup-overlay {
-        position: fixed;
-        inset: 0;
+        position: fixed; inset: 0;
         background: rgba(40, 25, 15, 0.55);
-        display: none;
-        align-items: center;
-        justify-content: center;
+        display: none; align-items: center; justify-content: center;
         z-index: 1000;
         animation: fadeIn 0.25s ease;
         padding: 20px;
     }
-    .popup-overlay.active {
-        display: flex;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
+    .popup-overlay.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     .popup {
         background: #fdf9f3;
         border-radius: 22px;
-        width: 100%;
-        max-width: 340px;
+        width: 100%; max-width: 320px;
         overflow: hidden;
         box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         animation: popupIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -392,91 +421,42 @@
 
     .popup-header {
         background: linear-gradient(180deg, #6dd5e8, #52c9dc);
-        padding: 14px 20px;
+        padding: 12px 18px;
         color: white;
         font-family: 'Playfair Display', serif;
-        font-size: 18px;
-        font-weight: 700;
+        font-size: 16px; font-weight: 700;
         letter-spacing: 1px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
+        display: flex; align-items: center; justify-content: space-between;
     }
-    .popup-close {
-        cursor: pointer;
-        font-size: 24px;
-        line-height: 1;
-        font-weight: 300;
-        opacity: 0.9;
-    }
-    .popup-close:hover { opacity: 1; }
+    .popup-close { cursor: pointer; font-size: 22px; line-height: 1; opacity: 0.9; }
 
-    .popup-body {
-        padding: 24px 20px;
-        text-align: center;
-    }
+    .popup-body { padding: 20px; text-align: center; }
     .popup-item-icon {
-        font-size: 68px;
+        font-size: 64px;
         filter: drop-shadow(0 6px 10px rgba(120,80,40,0.3));
-        margin-bottom: 10px;
+        margin-bottom: 8px;
         display: inline-block;
         animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
     }
     .popup-item-name {
         font-family: 'Playfair Display', serif;
-        font-size: 22px;
-        font-weight: 700;
-        color: #5a4a3e;
-        margin-bottom: 4px;
+        font-size: 20px; font-weight: 700;
+        color: #5a4a3e; margin-bottom: 3px;
     }
-    .popup-item-tier {
-        font-size: 14px;
-        color: #8a7460;
-        margin-bottom: 16px;
-    }
-    .popup-item-tier strong {
-        color: #b48c48;
-        font-family: 'Playfair Display', serif;
-    }
-
+    .popup-item-tier { font-size: 13px; color: #8a7460; margin-bottom: 14px; }
+    .popup-item-tier strong { color: #b48c48; font-family: 'Playfair Display', serif; }
     .popup-reward {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
+        display: inline-flex; align-items: center; gap: 5px;
         background: rgba(255, 220, 130, 0.3);
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-        color: #8a6a30;
-        font-size: 14px;
+        padding: 5px 14px; border-radius: 20px;
+        font-weight: 600; color: #8a6a30; font-size: 13px;
     }
 
-    /* ======== ЗВЁЗДОЧКИ В ФОНЕ (как на сайте) ======== */
-    .bg-stars {
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 1;
-        overflow: hidden;
-    }
-    .bg-star {
-        position: absolute;
-        color: rgba(255, 220, 150, 0.35);
-        font-size: 14px;
-        animation: floatStar 8s ease-in-out infinite alternate;
-    }
-    @keyframes floatStar {
-        0% { opacity: 0.1; transform: translateY(0) scale(0.8); }
-        100% { opacity: 0.6; transform: translateY(-20px) scale(1.2); }
-    }
-
-    /* ======== ВСПЛЫВАЮЩИЕ +МОНЕТЫ ======== */
+    /* ========== ВСПЛЫВАЮЩИЕ МОНЕТКИ ========== */
     .coin-fly {
-        position: fixed;
-        pointer-events: none;
+        position: fixed; pointer;
         font-family: 'Playfair Display', serif;
-        font-weight: 700;
-        font-size: 16px;
+        font-weight: 700; font-size: 15px;
         color: #d4900a;
         text-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 0 4px rgba(255,255,255,0.8);
         z-index: 900;
@@ -488,38 +468,31 @@
         100% { transform: translateY(-70px) scale(0.9); opacity: 0; }
     }
 
-    /* ======== ФИНАЛЬНЫЙ СЧЁТ ======== */
-    .stats {
-        position: absolute;
-        top: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(255,255,255,0.7);
-        border-radius: 12px;
-        padding: 4px 14px;
-        font-size: 11px;
-        color: #8a7460;
-        z-index: 8;
-        display: flex;
-        gap: 12px;
-        backdrop-filter: blur(4px);
+    /* Вспышка на весь экран при открытии нового тира */
+    .flash {
+        position: fixed; inset: 0;
+        background: radial-gradient(circle at center, rgba(255,240,180,0.8), rgba(255,200,100,0.4) 40%, transparent 70%);
+        pointer-events: none;
+        z-index: 800;
+        animation: flashFade 0.8s ease-out forwards;
     }
-    .stats strong {
-        color: #5a4a3e;
-        font-family: 'Playfair Display', serif;
+    @keyframes flashFade {
+        0% { opacity: 0; }
+        20% { opacity: 1; }
+        100% { opacity: 0; }
     }
+
 </style>
 </head>
 <body>
 
 <div id="game">
-    <!-- Фоновые звёздочки -->
     <div class="bg-stars" id="bgStars"></div>
 
     <!-- Верхняя панель -->
     <div class="top-bar">
         <div class="avatar-wrap">
-            <div class="avatar">👩</div>
+            <div class="avatar">👩‍🦰</div>
             <div class="avatar-level">1</div>
         </div>
         <div class="currencies">
@@ -529,15 +502,18 @@
         </div>
     </div>
 
+    <!-- Заказы -->
+    <div class="orders-row" id="ordersRow"></div>
+
     <!-- Персонаж -->
     <div class="character-zone">
         <div class="character-stage">
-            <div class="character" id="characterEmoji">👩‍🦰</div>
+            <div class="character">👩‍🦰</div>
         </div>
         <div class="character-name">Мия • Модница</div>
     </div>
 
-    <!-- Игровая сетка -->
+    <!-- Сетка -->
     <div class="grid-wrap">
         <div class="grid" id="grid"></div>
     </div>
@@ -545,21 +521,34 @@
     <!-- Нижняя панель -->
     <div class="bottom-bar">
         <div class="info-card">
-            <div class="info-title">
+            <div class="info-header">
                 <span class="info-i">i</span>
                 <span id="infoName">Соедини одинаковые</span>
             </div>
             <div class="info-text" id="infoText">
-                Перетащи один предмет на такой же, чтобы открыть следующий уровень.
+                Тапни предмет, потом тапни по такому же — они объединятся.
             </div>
         </div>
+
+        <div class="action-btns">
+            <button class="action-btn btn-sell disabled" id="sellBtn">
+                <span class="btn-icon">🪙</span>
+                <span>Продать</span>
+                <span class="btn-amount" id="sellAmount">+0</span>
+            </button>
+            <button class="action-btn btn-undo disabled" id="undoBtn">
+                <span class="btn-icon">↩</span>
+                <span>Отмена</span>
+            </button>
+        </div>
+
         <button class="gen-btn" id="genBtn">
             <span class="gen-emoji">🎁</span>
             <span>В путь</span>
         </button>
     </div>
 
-    <!-- Попап открытия -->
+    <!-- Попап -->
     <div class="popup-overlay" id="popup">
         <div class="popup">
             <div class="popup-header">
@@ -571,8 +560,8 @@
                 <div class="popup-item-name" id="popupName">Высокие туфли</div>
                 <div class="popup-item-tier">Уровень <strong id="popupTier">5</strong></div>
                 <div class="popup-reward">
-                    <span>🪙</span>
-                    <span id="popupReward">+15</span>
+                    <span>💎</span>
+                    <span id="popupReward">+1</span>
                 </div>
             </div>
         </div>
@@ -581,105 +570,156 @@
 
 <script>
 // ============================================================
-// MERGE & MUSE — рабочий прототип merge-механики
+// MERGE & MUSE — версия 2 (ЭТАП 1)
 // ============================================================
 
-// ---- ЦЕПОЧКИ ПРЕДМЕТОВ ----
 const CHAINS = {
-    shoes: {
-        name: 'Обувь',
-        icon: '👟',
-        tiers: [
-            { icon: '🩴', name: 'Пляжные шлёпки' },
-            { icon: '🥿', name: 'Балетки' },
-            { icon: '👟', name: 'Кроссовки' },
-            { icon: '👞', name: 'Лоферы' },
-            { icon: '👠', name: 'Высокие туфли' },
-            { icon: '👡', name: 'Босоножки' },
-            { icon: '👢', name: 'Сапоги' },
-            { icon: '🦿', name: 'Легендарные' }
-        ]
-    },
-    watches: {
-        name: 'Часы',
-        icon: '⌚',
-        tiers: [
-            { icon: '⌚', name: 'Спортивные' },
-            { icon: '🕐', name: 'Классические' },
-            { icon: '🕑', name: 'Золотые' },
-            { icon: '🕒', name: 'Винтажные' },
-            { icon: '🕓', name: 'Ювелирные' },
-            { icon: '🕔', name: 'Коллекционные' },
-            { icon: '🕕', name: 'Раритет' },
-            { icon: '🕰️', name: 'Антиквариат' }
-        ]
-    },
-    bags: {
-        name: 'Сумки',
-        icon: '👛',
-        tiers: [
-            { icon: '👛', name: 'Монетница' },
-            { icon: '👜', name: 'Клатч' },
-            { icon: '👝', name: 'Косметичка' },
-            { icon: '🎒', name: 'Рюкзак' },
-            { icon: '💼', name: 'Деловая' },
-            { icon: '🧳', name: 'Дорожная' },
-            { icon: '👑', name: 'Кутюр' }
-        ]
-    },
-    makeup: {
-        name: 'Косметика',
-        icon: '💄',
-        tiers: [
-            { icon: '🧴', name: 'Крем' },
-            { icon: '🧼', name: 'Тоник' },
-            { icon: '💅', name: 'Лак' },
-            { icon: '💄', name: 'Помада' },
-            { icon: '💋', name: 'Палетка' },
-            { icon: '🌹', name: 'Парфюм' },
-            { icon: '💎', name: 'Люкс' }
-        ]
-    }
+    shoes: { name: 'Обувь', tiers: [
+        { icon: '🩴', name: 'Пляжные шлёпки' },
+        { icon: '🥿', name: 'Балетки' },
+        { icon: '👟', name: 'Кроссовки' },
+        { icon: '👞', name: 'Лоферы' },
+        { icon: '👠', name: 'Высокие туфли' },
+        { icon: '👡', name: 'Босоножки' },
+        { icon: '👢', name: 'Сапоги' },
+        { icon: '🦿', name: 'Легендарные' }
+    ]},
+    watches: { name: 'Часы', tiers: [
+        { icon: '⌚', name: 'Спортивные' },
+        { icon: '🕐', name: 'Классические' },
+        { icon: '🕑', name: 'Золотые' },
+        { icon: '🕒', name: 'Винтажные' },
+        { icon: '🕓', name: 'Ювелирные' },
+        { icon: '🕔', name: 'Коллекционные' },
+        { icon: '🕕', name: 'Раритет' },
+        { icon: '🕰️', name: 'Антиквариат' }
+    ]},
+    bags: { name: 'Сумки', tiers: [
+        { icon: '👛', name: 'Монетница' },
+        { icon: '👜', name: 'Клатч' },
+        { icon: '👝', name: 'Косметичка' },
+        { icon: '🎒', name: 'Рюкзак' },
+        { icon: '💼', name: 'Деловая' },
+        { icon: '🧳', name: 'Дорожная' },
+        { icon: '👑', name: 'Кутюр' }
+    ]},
+    makeup: { name: 'Косметика', tiers: [
+        { icon: '🧴', name: 'Крем' },
+        { icon: '🧼', name: 'Тоник' },
+        { icon: '💅', name: 'Лак' },
+        { icon: '💄', name: 'Помада' },
+        { icon: '💋', name: 'Палетка' },
+        { icon: '🌹', name: 'Парфюм' },
+        { icon: '💎', name: 'Люкс' }
+    ]}
 };
 
 const CHAIN_KEYS = Object.keys(CHAINS);
 
-// ---- СОСТОЯНИЕ ИГРЫ ----
 const state = {
-    grid: new Array(36).fill(null),  // 6x6
+    grid: new Array(36).fill(null),
     coins: 0,
     energy: 50,
     gems: 5,
-    discovered: {},   // { "shoes-0": true, "shoes-1": true, ... }
-    totalMerges: 0
+    discovered: {},
+    totalMerges: 0,
+    lastAction: null,       // { type: 'merge', fromIdx, toIdx, prevFrom, prevTo, prevCoins }
+    selectedIdx: null,
+    orders: []
 };
 
-// ---- ИНИЦИАЛИЗАЦИЯ СЕТКИ ----
+// ---- Стартовая сетка ----
 function initGrid() {
-    // Ставим несколько стартовых предметов, чтобы игрок сразу мог мержить
     const seedPattern = [
-        { chain: 'shoes', tier: 0, count: 4 },
+        { chain: 'shoes', tier: 0, count: 3 },
         { chain: 'shoes', tier: 1, count: 2 },
         { chain: 'watches', tier: 0, count: 3 },
         { chain: 'bags', tier: 0, count: 3 },
         { chain: 'makeup', tier: 0, count: 3 },
         { chain: 'makeup', tier: 1, count: 2 }
     ];
-
     const positions = [...Array(36).keys()].sort(() => Math.random() - 0.5);
     let idx = 0;
-
     seedPattern.forEach(seed => {
         for (let i = 0; i < seed.count && idx < positions.length; i++) {
             const pos = positions[idx++];
             state.grid[pos] = { chain: seed.chain, tier: seed.tier };
-            // Помечаем как открытое
             state.discovered[`${seed.chain}-${seed.tier}`] = true;
         }
     });
 }
 
-// ---- ОТРИСОВКА ----
+// ---- Заказы ----
+function generateOrder() {
+    // Заказ: принести 1-2 предмета случайной цепочки среднего тира
+    const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
+    const maxTier = Math.min(4, CHAINS[chain].tiers.length - 1);
+    const tier = Math.floor(Math.random() * (maxTier + 1));
+    const rewardCoins = 10 + (tier + 1) * 12;
+    const rewardGems = tier >= 3 ? 1 : 0;
+    return {
+        chain, tier,
+        rewardCoins, rewardGems,
+        timeLeft: 3600 + Math.random() * 3600  // условно 1-2 часа
+    };
+}
+
+function initOrders() {
+    state.orders = [generateOrder(), generateOrder(), generateOrder()];
+}
+
+function renderOrders() {
+    const row = document.getElementById('ordersRow');
+    row.innerHTML = '';
+    state.orders.forEach((order, i) => {
+        const chain = CHAINS[order.chain];
+        const tierData = chain.tiers[order.tier];
+        const has = state.grid.some(it => it && it.chain === order.chain && it.tier === order.tier);
+
+        const card = document.createElement('div');
+        card.className = 'order-card' + (has ? ' ready' : '');
+        card.dataset.orderIdx = i;
+        card.innerHTML = `
+            <div class="order-reward">+${order.rewardCoins}🪙</div>
+            <div class="order-icon">${tierData.icon}</div>
+            <div class="order-count">${tierData.name}</div>
+            <div class="order-timer">до конца дня</div>
+        `;
+        card.addEventListener('click', () => tryCompleteOrder(i));
+        row.appendChild(card);
+    });
+}
+
+function tryCompleteOrder(orderIdx) {
+    const order = state.orders[orderIdx];
+    // Находим подходящий предмет
+    const itemIdx = state.grid.findIndex(it => it && it.chain === order.chain && it.tier === order.tier);
+    if (itemIdx === -1) {
+        showInfo('Нужен предмет!', `Собери «${CHAINS[order.chain].tiers[order.tier].name}» и тапни по заказу снова.`);
+        return;
+    }
+
+    // Забираем предмет
+    state.grid[itemIdx] = null;
+    state.coins += order.rewardCoins;
+    if (order.rewardGems) state.gems += order.rewardGems;
+    state.totalMerges++;
+
+    // Новая награда - анимация
+    const cell = gridEl.querySelector(`[data-idx="${itemIdx}"]`);
+    spawnCoinFly(cell, order.rewardCoins);
+
+    playOrderSound();
+
+    // Новый заказ
+    state.orders[orderIdx] = generateOrder();
+    render();
+    renderOrders();
+    updateUI();
+    updateActionButtons();
+}
+
+// ---- Отрисовка сетки ----
 const gridEl = document.getElementById('grid');
 
 function render() {
@@ -687,6 +727,7 @@ function render() {
     state.grid.forEach((item, idx) => {
         const cell = document.createElement('div');
         cell.className = 'cell' + (item ? ' has-item' : ' empty');
+        if (state.selectedIdx === idx) cell.classList.add('selected');
         cell.dataset.idx = idx;
 
         if (item) {
@@ -702,129 +743,208 @@ function render() {
             badge.className = 'item-tier-badge';
             badge.textContent = item.tier + 1;
             cell.appendChild(badge);
-
-            // Drag & drop
-            cell.draggable = true;
-            cell.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', idx);
-                e.dataTransfer.effectAllowed = 'move';
-            });
-            cell.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                if (state.grid[idx] === null || canMerge(state.grid[parseInt(e.dataTransfer.types[0])], state.grid[idx])) {
-                    cell.classList.add('drag-over');
-                }
-            });
-            cell.addEventListener('dragleave', () => {
-                cell.classList.remove('drag-over');
-            });
-            cell.addEventListener('drop', (e) => {
-                e.preventDefault();
-                cell.classList.remove('drag-over');
-                const fromIdx = parseInt(e.dataTransfer.getData('text/plain'));
-                tryMerge(fromIdx, idx);
-            });
-
-            // Тач-поддержка
-            cell.addEventListener('touchstart', handleTouchStart, { passive: false });
-            cell.addEventListener('touchmove', handleTouchMove, { passive: false });
-            cell.addEventListener('touchend', handleTouchEnd, { passive: false });
         }
 
+        cell.addEventListener('click', () => onCellTap(idx));
         gridEl.appendChild(cell);
     });
 }
 
-// ---- ЛОГИКА MERGE ----
-function canMerge(a, b) {
-    if (!a || !b) return false;
-    return a.chain === b.chain && a.tier === b.tier;
+// ---- Логика тап-мержа ----
+function onCellTap(idx) {
+    const item = state.grid[idx];
+
+    // Если ничего не выбрано
+    if (state.selectedIdx === null) {
+        if (!item) return;
+        state.selectedIdx = idx;
+        updateInfoFromItem(item);
+        render();
+        updateActionButtons();
+        playTapSound();
+        return;
+    }
+
+    // Если тапнул по тому же — отмена выбора
+    if (state.selectedIdx === idx) {
+        state.selectedIdx = null;
+        clearInfo();
+        render();
+        updateActionButtons();
+        return;
+    }
+
+    // Если тапнул по пустой клетке — перенос
+    if (!item) {
+        // Перемещаем предмет в пустую клетку
+        state.grid[idx] = state.grid[state.selectedIdx];
+        state.grid[state.selectedIdx] = null;
+        state.selectedIdx = null;
+        clearInfo();
+        render();
+        updateActionButtons();
+        return;
+    }
+
+    // Оба предмета на месте
+    const first = state.grid[state.selectedIdx];
+    if (first && first.chain === item.chain && first.tier === item.tier) {
+        // Мержим!
+        tryMerge(state.selectedIdx, idx);
+        state.selectedIdx = null;
+    } else {
+        // Не совпали — просто переключаем выбор
+        state.selectedIdx = idx;
+        updateInfoFromItem(item);
+        render();
+        updateActionButtons();
+        playTapSound();
+    }
 }
 
 function tryMerge(fromIdx, toIdx) {
-    if (fromIdx === toIdx) return;
     const from = state.grid[fromIdx];
     const to = state.grid[toIdx];
+    if (!from || !to) return;
+    if (from.chain !== to.chain || from.tier !== to.tier) return;
 
-    if (from && to && canMerge(from, to)) {
-        // Проверяем, не максимальный ли это тир
-        const chainData = CHAINS[from.chain];
-        if (from.tier >= chainData.tiers.length - 1) {
-            showInfo('Максимальный уровень!', `${chainData.tiers[from.tier].name} уже на пике.`);
-            return;
-        }
-
-        // Мерж!
-        const newTier = from.tier + 1;
-        state.grid[toIdx] = { chain: from.chain, tier: newTier };
-        state.grid[fromIdx] = null;
-        state.totalMerges++;
-
-        // Начисляем монеты (чем выше тир — тем больше)
-        const coinReward = (newTier + 1) * 3;
-        state.coins += coinReward;
-        updateUI();
-
-        // Анимация
-        const toCell = gridEl.querySelector(`[data-idx="${toIdx}"]`);
-        if (toCell) {
-            toCell.classList.add('merging');
-            setTimeout(() => toCell.classList.remove('merging'), 400);
-        }
-
-        // Звук мержа
-        playMergeSound(newTier);
-
-        // Всплывающие монетки
-        spawnCoinFly(toCell, coinReward);
-
-        // Проверка: новый ли это тир?
-        const key = `${from.chain}-${newTier}`;
-        if (!state.discovered[key]) {
-            state.discovered[key] = true;
-            setTimeout(() => showDiscoveryPopup(from.chain, newTier, coinReward), 350);
-        }
-
+    const chainData = CHAINS[from.chain];
+    if (from.tier >= chainData.tiers.length - 1) {
+        showInfo('Максимум!', `${chainData.tiers[from.tier].name} уже на пике.`);
         render();
-        updateInfo(from.chain, newTier);
+        return;
     }
+
+    // Сохраняем для отмены
+    state.lastAction = {
+        type: 'merge',
+        fromIdx, toIdx,
+        prevFrom: { ...from },
+        prevTo: { ...to },
+        prevCoins: state.coins
+    };
+
+    const newTier = from.tier + 1;
+    state.grid[toIdx] = { chain: from.chain, tier: newTier };
+    state.grid[fromIdx] = null;
+    state.totalMerges++;
+
+    const coinReward = (newTier + 1) * 3;
+    state.coins += coinReward;
+    updateUI();
+
+    // Анимация
+    const toCell = gridEl.querySelector(`[data-idx="${toIdx}"]`);
+    if (toCell) {
+        toCell.classList.add('merging');
+        setTimeout(() => toCell.classList.remove('merging'), 400);
+    }
+
+    playMergeSound(newTier);
+    spawnCoinFly(toCell, coinReward);
+
+    // Новый тир?
+    const key = `${from.chain}-${newTier}`;
+    if (!state.discovered[key]) {
+        state.discovered[key] = true;
+        triggerFlash();
+        setTimeout(() => showDiscoveryPopup(from.chain, newTier), 300);
+    }
+
+    state.selectedIdx = null;
+    clearInfo();
+    render();
+    renderOrders();
+    updateActionButtons();
 }
 
-// ---- ГЕНЕРАТОР ----
+// ---- Продажа ----
+const sellBtn = document.getElementById('sellBtn');
+sellBtn.addEventListener('click', () => {
+    if (state.selectedIdx === null) return;
+    const item = state.grid[state.selectedIdx];
+    if (!item) return;
+
+    const sellPrice = (item.tier + 1) * 2;
+    state.coins += sellPrice;
+    state.grid[state.selectedIdx] = null;
+
+    const cell = gridEl.querySelector(`[data-idx="${state.selectedIdx}"]`);
+    spawnCoinFly(cell, sellPrice);
+
+    state.selectedIdx = null;
+    clearInfo();
+    playSellSound();
+    updateUI();
+    render();
+    renderOrders();
+    updateActionButtons();
+});
+
+function updateSellPrice() {
+    const amountEl = document.getElementById('sellAmount');
+    if (state.selectedIdx === null) {
+        amountEl.textContent = '+0';
+        return;
+    }
+    const item = state.grid[state.selectedIdx];
+    if (!item) { amountEl.textContent = '+0'; return; }
+    amountEl.textContent = '+' + ((item.tier + 1) * 2);
+}
+
+// ---- Отмена ----
+const undoBtn = document.getElementById('undoBtn');
+undoBtn.addEventListener('click', () => {
+    if (!state.lastAction || state.lastAction.type !== 'merge') return;
+    const a = state.lastAction;
+
+    // Возвращаем
+    state.grid[a.fromIdx] = a.prevFrom;
+    state.grid[a.toIdx] = a.prevTo;
+    state.coins = a.prevCoins;
+    state.lastAction = null;
+    state.selectedIdx = null;
+
+    playUndoSound();
+    updateUI();
+    render();
+    renderOrders();
+    clearInfo();
+    updateActionButtons();
+});
+
+// ---- Генератор ----
 const genBtn = document.getElementById('genBtn');
 genBtn.addEventListener('click', () => {
     if (state.energy < 1) {
-        showInfo('Мало энергии', 'Подожди немного — энергия восстанавливается.');
+        showInfo('Мало энергии', 'Подожди, энергия восстанавливается.');
         return;
     }
-
     const emptyIndices = state.grid.map((v, i) => v === null ? i : -1).filter(i => i !== -1);
     if (emptyIndices.length === 0) {
-        showInfo('Поле заполнено', 'Соедини предметы или продай лишние, чтобы освободить место.');
+        showInfo('Поле заполнено', 'Соедини предметы или продай лишние.');
         return;
     }
 
-    // Случайная цепочка
     const chain = CHAIN_KEYS[Math.floor(Math.random() * CHAIN_KEYS.length)];
     const idx = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
 
     state.grid[idx] = { chain, tier: 0 };
     state.energy--;
     state.discovered[`${chain}-0`] = true;
+
     updateUI();
     render();
+    renderOrders();
 
-    // Анимация
     const cell = gridEl.querySelector(`[data-idx="${idx}"]`);
     if (cell) {
         cell.classList.add('new-item');
         setTimeout(() => cell.classList.remove('new-item'), 500);
     }
-
     playSpawnSound();
 });
 
-// Восстановление энергии
 setInterval(() => {
     if (state.energy < 100) {
         state.energy = Math.min(100, state.energy + 1);
@@ -832,24 +952,23 @@ setInterval(() => {
     }
 }, 3000);
 
-// ---- ЗВУКИ (Web Audio) ----
+// ---- Звуки ----
 let audioCtx = null;
 function getAudioCtx() {
     if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
     }
     return audioCtx;
 }
-
 function playTone(freq, duration, type = 'sine', gainVal = 0.1, delay = 0) {
     try {
         const ctx = getAudioCtx();
+        if (!ctx) return;
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
+        osc.connect(gain); gain.connect(ctx.destination);
         const start = ctx.currentTime + delay;
         gain.gain.setValueAtTime(0, start);
         gain.gain.linearRampToValueAtTime(gainVal, start + 0.01);
@@ -858,27 +977,24 @@ function playTone(freq, duration, type = 'sine', gainVal = 0.1, delay = 0) {
         osc.stop(start + duration);
     } catch(e) {}
 }
-
 function playMergeSound(tier) {
-    // Чем выше тир — тем выше и красивее звук
     const baseFreq = 400 + tier * 80;
     playTone(baseFreq, 0.15, 'sine', 0.12, 0);
     playTone(baseFreq * 1.5, 0.2, 'triangle', 0.08, 0.05);
     if (tier >= 4) {
-        // Бонусный "волшебный" звук для высоких тиров
         playTone(baseFreq * 2, 0.3, 'sine', 0.06, 0.1);
         playTone(baseFreq * 3, 0.4, 'sine', 0.04, 0.15);
     }
 }
-
-function playSpawnSound() {
-    playTone(600, 0.08, 'sine', 0.06, 0);
-    playTone(900, 0.1, 'sine', 0.04, 0.05);
+function playSpawnSound() { playTone(600, 0.08, 'sine', 0.06, 0); playTone(900, 0.1, 'sine', 0.04, 0.05); }
+function playTapSound() { playTone(700, 0.05, 'sine', 0.04); }
+function playSellSound() { playTone(500, 0.1, 'triangle', 0.08); playTone(350, 0.15, 'sine', 0.06, 0.05); }
+function playUndoSound() { playTone(400, 0.1, 'triangle', 0.06); playTone(300, 0.15, 'triangle', 0.06, 0.08); }
+function playOrderSound() {
+    [523, 659, 784, 1047].forEach((f, i) => playTone(f, 0.3, 'sine', 0.09, i * 0.06));
 }
-
 function playDiscoverySound() {
-    const notes = [523, 659, 784, 1047]; // C-E-G-C
-    notes.forEach((f, i) => playTone(f, 0.4, 'sine', 0.1, i * 0.08));
+    [523, 659, 784, 1047, 1319].forEach((f, i) => playTone(f, 0.35, 'sine', 0.09, i * 0.07));
 }
 
 // ---- UI ----
@@ -888,11 +1004,33 @@ function updateUI() {
     document.getElementById('gemVal').textContent = state.gems;
 }
 
-function updateInfo(chainKey, tier) {
-    const chain = CHAINS[chainKey];
-    const tierData = chain.tiers[tier];
+function updateActionButtons() {
+    // Продажа
+    if (state.selectedIdx !== null && state.grid[state.selectedIdx]) {
+        sellBtn.classList.remove('disabled');
+    } else {
+        sellBtn.classList.add('disabled');
+    }
+    updateSellPrice();
+
+    // Отмена
+    if (state.lastAction) {
+        undoBtn.classList.remove('disabled');
+    } else {
+        undoBtn.classList.add('disabled');
+    }
+}
+
+function updateInfoFromItem(item) {
+    const chain = CHAINS[item.chain];
+    const tierData = chain.tiers[item.tier];
     document.getElementById('infoName').textContent = tierData.name;
-    document.getElementById('infoText').textContent = `Цепочка «${chain.name}» • Уровень ${tier + 1} из ${chain.tiers.length}`;
+    document.getElementById('infoText').textContent = `Цепочка «${chain.name}» • Уровень ${item.tier + 1} из ${chain.tiers.length}. Тапни по такому же, чтобы соединить.`;
+}
+
+function clearInfo() {
+    document.getElementById('infoName').textContent = 'Соедини одинаковые';
+    document.getElementById('infoText').textContent = 'Тапни предмет, потом тапни по такому же — они объединятся.';
 }
 
 function showInfo(name, text) {
@@ -900,31 +1038,25 @@ function showInfo(name, text) {
     document.getElementById('infoText').textContent = text;
 }
 
-// ---- ПОПАП ОТКРЫТИЯ ----
+// ---- Попап ----
 const popup = document.getElementById('popup');
-document.getElementById('popupClose').addEventListener('click', () => {
-    popup.classList.remove('active');
-});
-popup.addEventListener('click', (e) => {
-    if (e.target === popup) popup.classList.remove('active');
-});
+document.getElementById('popupClose').addEventListener('click', () => popup.classList.remove('active'));
+popup.addEventListener('click', (e) => { if (e.target === popup) popup.classList.remove('active'); });
 
-function showDiscoveryPopup(chainKey, tier, reward) {
+function showDiscoveryPopup(chainKey, tier) {
     const chain = CHAINS[chainKey];
     const tierData = chain.tiers[tier];
     document.getElementById('popupIcon').textContent = tierData.icon;
     document.getElementById('popupName').textContent = tierData.name;
     document.getElementById('popupTier').textContent = (tier + 1);
-    document.getElementById('popupReward').textContent = '+' + reward;
+    document.getElementById('popupReward').textContent = '+1';
     popup.classList.add('active');
     playDiscoverySound();
-
-    // Бонус за открытие
     state.gems += 1;
     updateUI();
 }
 
-// ---- ВСПЛЫВАЮЩИЕ МОНЕТКИ ----
+// ---- Анимации ----
 function spawnCoinFly(cell, amount) {
     if (!cell) return;
     const rect = cell.getBoundingClientRect();
@@ -937,60 +1069,14 @@ function spawnCoinFly(cell, amount) {
     setTimeout(() => el.remove(), 900);
 }
 
-// ---- TAP-TO-MERGE (для тач-устройств) ----
-let selectedCell = null;
-
-function handleTouchStart(e) {
-    const idx = parseInt(this.dataset.idx);
-    const item = state.grid[idx];
-    if (!item) return;
-
-    // Находим координаты касания
-    const touch = e.touches[0];
-    this.dataset.startX = touch.clientX;
-    this.dataset.startY = touch.clientY;
-    this.dataset.startIdx = idx;
-    selectedCell = idx;
+function triggerFlash() {
+    const el = document.createElement('div');
+    el.className = 'flash';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
 }
 
-function handleTouchMove(e) {
-    e.preventDefault(); // блокируем прокрутку
-    if (!selectedCell) return;
-
-    const touch = e.touches[0];
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    if (!el) return;
-
-    const targetCell = el.closest('.cell');
-    if (targetCell && targetCell !== this) {
-        document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
-        targetCell.classList.add('drag-over');
-    }
-}
-
-function handleTouchEnd(e) {
-    e.preventDefault();
-    document.querySelectorAll('.cell.drag-over').forEach(c => c.classList.remove('drag-over'));
-
-    if (!selectedCell) return;
-
-    const touch = e.changedTouches[0];
-    const el = document.elementFromPoint(touch.clientX, touch.clientY);
-    selectedCell = null;
-
-    if (!el) return;
-    const targetCell = el.closest('.cell');
-    if (!targetCell) return;
-
-    const fromIdx = parseInt(this.dataset.startIdx);
-    const toIdx = parseInt(targetCell.dataset.idx);
-
-    if (fromIdx !== toIdx) {
-        tryMerge(fromIdx, toIdx);
-    }
-}
-
-// ---- ФОНОВЫЕ ЗВЁЗДОЧКИ ----
+// ---- Фон ----
 function initBgStars() {
     const container = document.getElementById('bgStars');
     for (let i = 0; i < 20; i++) {
@@ -1006,11 +1092,18 @@ function initBgStars() {
     }
 }
 
-// ---- СТАРТ ----
+// ---- Старт ----
 initGrid();
+initOrders();
 initBgStars();
 render();
+renderOrders();
 updateUI();
+updateActionButtons();
+
+// Разблокировка звука на мобильных по первому тапу
+document.addEventListener('touchstart', () => { getAudioCtx(); }, { once: true });
+document.addEventListener('click', () => { getAudioCtx(); }, { once: true });
 </script>
 
 </body>
